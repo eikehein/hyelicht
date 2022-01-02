@@ -1,0 +1,65 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+
+name: Documentation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: kdeneon/plasma:user
+      options: --user root
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get install -y build-essential git cmake gettext
+        sudo apt-get install -y qtbase5-dev qtdeclarative5-dev qtquickcontrols2-5-dev libqt5remoteobjects5-dev libkf5config-dev
+        sudo apt-get install -y libkf5coreaddons-dev libkf5i18n-dev extra-cmake-modules
+        sudo apt-get install -y graphviz doxyqml
+        sudo apt-get install -y rsync
+
+    - name: Install build dependencies for Doxygen
+      run: |
+        sudo sed -i '/deb-src/s/^# //' /etc/apt/sources.list
+        sudo apt-get update -y
+        sudo apt-get build-dep -y doxygen
+
+    - name: Install newer Doxygen
+      run: |
+        ln -s /usr/bin/dot /usr/sbin/dot
+        cd ..
+        git clone https://github.com/doxygen/doxygen.git
+        cd doxygen
+        mkdir build
+        cd build
+        cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=/usr ..
+        make
+        sudo make install
+        cd ../../hyelicht
+
+    - name: Configure Hyelicht
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_ONBOARD=false -DBUILD_CLI=false -DBUILD_DOCS=true
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Symlink output dir for deployment
+      run: ln -s ${{github.workspace}}/build/docs/html docs/html
+
+    - name: Deploy documentation to GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@4.1.7
+      with:
+        branch: gh-pages
+        folder: docs/html

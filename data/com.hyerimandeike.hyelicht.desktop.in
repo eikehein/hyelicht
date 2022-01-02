@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+
+[Desktop Entry]
+Type=Application
+Exec=@PROJECT_NAME@ -qwindowtitle %c %u
+Icon=@PROJECT_NAME@
+GenericName=Controller for the @PROJECT_NAME@ shelf
+Terminal=false
+Name=@PROJECT_NAME@
+Categories=Qt;Network;RemoteAccess
+X-DBUS-StartupType=Unique
+X-DBUS-ServiceName=@HYELICHT_DOMAIN_NAME@
+StartupNotify=true

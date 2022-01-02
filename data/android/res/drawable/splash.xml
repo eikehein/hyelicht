@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+  SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:width="256dp" android:height="256dp" android:gravity="center">
+        <bitmap
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:scaleType="fitXY"
+            android:src="@drawable/hyelicht"/>
+    </item>
+</layer-list>

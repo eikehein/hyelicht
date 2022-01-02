@@ -1,0 +1,21 @@
+/*
+ * SPDX-License-Identifier: CC-BY-4.0
+ * SPDX-FileCopyrightText: 2022 Eike Hein <sho@eikehein.com>
+ */
+
+#body-logo { display: none; } /* Hide the logo above the page title: Doxygen has the README.md content under its own header, already featuring the project logo. */
+
+/* Make the Doxygen Table of Contents wider and easier to read. */
+div.toc { width: unset !important; max-width: 24em !important; } 
+div.toc li { font-size: 12px !important; }
+
+/* Doxygen generates its own floating Table of Contents. Hide the in-document section. */
+div.toc li { margin-top: 0px; padding-top: 0px; }
+div.toc li a { display: block; padding-top: 2px; padding-bottom: 2px; }
+div.toc li a[href="#table-of-contents"] { display: none; }
+div[id="dummy"] + h2 { display: none; }
+div[id="dummy"] + h2 + ul { display: none; }
+div[id="dummy"] + h2 + ul + hr { display: none; }
+
+/* Hide redundant page title on main page. */
+div.contents h1 { display: none; }

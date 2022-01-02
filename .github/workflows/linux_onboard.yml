@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+
+name: Linux (Onboard)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: kdeneon/plasma:user
+      options: --user root
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get install -y build-essential git cmake gettext
+        sudo apt-get install -y qtbase5-dev qtdeclarative5-dev qtquickcontrols2-5-dev libqt5remoteobjects5-dev libqt5serialport5-dev libkf5config-dev
+        sudo apt-get install -y libkf5coreaddons-dev libkf5i18n-dev extra-cmake-modules
+
+    - name: Install latest QHttpEngine
+      run: |
+          git clone https://github.com/nitroshare/qhttpengine.git
+          cd qhttpengine
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=release -DCMAKE_INSTALL_PREFIX=/usr ../
+          make
+          sudo make install
+
+    - name: Configure Hyelicht
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}

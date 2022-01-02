@@ -1,0 +1,104 @@
+ /*
+  * SPDX-License-Identifier: BSD-3-Clause
+  * SPDX-FileCopyrightText: 2018-2020 Volker Krause <vkrause@kde.org>
+  * SPDX-FileCopyrightText: 2019 Nicolas Fella <nicolas.fella@gmx.de>
+  * SPDX-FileCopyrightText: 2020 Gabriel Souza Franco <gabrielfrancosouza@gmail.com>
+  * SPDX-FileCopyrightText: 2021-2022 Eike Hein <hein@kde.org>
+ */
+
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.6.4'
+    }
+}
+
+repositories {
+    google()
+    jcenter()
+}
+
+
+apply plugin: 'com.android.application'
+apply from: '../version.gradle'
+def timestamp = (int)(new Date().getTime()/1000)
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+    implementation 'androidx.core:core:1.3.1'
+}
+
+android {
+    /*******************************************************
+     * The following variables:
+     * - androidBuildToolsVersion,
+     * - androidCompileSdkVersion
+     * - qt5AndroidDir - holds the path to qt android files
+     *                   needed to build any Qt application
+     *                   on Android.
+     *
+     * are defined in gradle.properties file. This file is
+     * updated by QtCreator and androiddeployqt tools.
+     * Changing them manually might break the compilation!
+     *******************************************************/
+
+    compileSdkVersion androidCompileSdkVersion.toInteger()
+
+    buildToolsVersion androidBuildToolsVersion
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = [qt5AndroidDir + '/src', 'src', 'java']
+            aidl.srcDirs = [qt5AndroidDir + '/src', 'src', 'aidl']
+            res.srcDirs = [qt5AndroidDir + '/res', 'res']
+            resources.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            assets.srcDirs = ['assets']
+            jniLibs.srcDirs = ['libs']
+       }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    defaultConfig {
+        minSdkVersion qtMinSdkVersion
+        targetSdkVersion qtTargetSdkVersion
+        manifestPlaceholders = [versionName: projectVersionFull, versionCode: timestamp]
+    }
+
+    packagingOptions {
+        exclude 'lib/*/*_Controls.2_Fusion_*'
+        exclude 'lib/*/*_Controls.2_Imagine_*'
+        exclude 'lib/*/*StateMachine*'
+        exclude 'lib/*/*_imageformats_qico_*'
+        exclude 'lib/*/*_imageformats_qicns_*'
+        exclude 'lib/*/*_imageformats_qgif_*'
+        exclude 'lib/*/*_imageformats_qjpeg_*'
+        exclude 'lib/*/*_imageformats_qtga_*'
+        exclude 'lib/*/*_imageformats_qtiff_*'
+        exclude 'lib/*/*_imageformats_qwbmp_*'
+        exclude 'lib/*/*_imageformats_qwebp_*'
+        exclude 'lib/*/*_qmltooling_*'
+        exclude 'lib/*/*_qtgeoservices_esri_*'
+        exclude 'lib/*/*_qtgeoservices_mapbox_*'
+        exclude 'lib/*/*_qtgeoservices_nokia_*'
+    }
+
+    aaptOptions {
+        // different syntax than above
+        // see https://android.googlesource.com/platform/frameworks/base/+/refs/heads/pie-release/tools/aapt2/util/Files.h#90
+        ignoreAssetsPattern '!<dir>ECM:!<dir>aclocal:!<dir>doc:!<dir>gtk-doc:!<dir>man:!<dir>mime:!<dir>pkgconfig:!<dir>qlogging-categories5:!<file>iso_15924.mo:!<file>iso_3166-2.mo:!<file>iso_3166-3.mo:!<file>iso_4217.mo:!<file>iso_639-2.mo:!<file>iso_639-3.mo:!<file>iso_639-5.mo:!<file>kcodecs5_qt.qm:!<file>kde5_xml_mimetypes.qm:!<file>knotifications5_qt.qm:!<file>libkholidays5_qt.qm:!<file>libkmime5.mo:!<file>iso_3166-3.json:!<file>iso_4217.json:!<file>iso_639-2.json:!<file>iso_639-3.json:!<file>iso_639-5.json:!<file>schema-15924.json:!<file>schema-3166-1.json:!<file>schema-3166-2.json:!<file>schema-3166-3.json:!<file>schema-4217.json:!<file>schema-639-2.json:!<file>schema-639-3.json:!<file>schema-639-5.json'
+    }
+}

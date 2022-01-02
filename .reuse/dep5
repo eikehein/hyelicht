@@ -1,0 +1,23 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Hyelicht
+Upstream-Contact: Eike Hein <sho@eikehein.com>
+
+Files: src/declarative/assets/icons/*
+Copyright: 2014 Uri Herrera <uri_herrera@nitrux.in> and others
+License: LGPL-3.0-or-later
+
+Files: src/declarative/assets/icons/fire.svg
+Copyright: 2021 SVG Repo <info@svgrepo.com>
+License: CC0-1.0
+
+Files: src/declarative/assets/*.png
+Copyright: 2021-2022 Eike Hein <sho@eikehein.com>
+License: CC-BY-4.0
+
+Files: data/android/res*.png
+Copyright: 2021-2022 Eike Hein <sho@eikehein.com>
+License: CC-BY-4.0
+
+Files: docs/*
+Copyright: 2021-2022 Eike Hein <sho@eikehein.com>
+License: CC-BY-4.0

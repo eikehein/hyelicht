@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+  SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+-->
+<component type="desktop-application">
+    <id>@HYELICHT_DOMAIN_NAME@</id>
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>(GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL) AND CC-BY-4.0 AND CC0-1.0 AND BSD-3-Clause AND LGPL-3.0-or-later</project_license>
+    <name>@PROJECT_NAME@</name>
+    <summary>Controller for the hyelicht shelf</summary>
+    <developer_name>Hyerim and Eike</developer_name>
+    <update_contact>sho_AT_eikehein.com</update_contact>
+    <description>
+        <p>@PROJECT_DESCRIPTION@</p>
+    </description>
+    <categories>
+        <category>RemoteAccess</category>
+    </categories>
+    <url type="homepage">https://www.hyerimandeike.com/</url>
+    <translation type="gettext">@PROJECT_NAME@</translation>
+    <provides>
+        <binary>@PROJECT_NAME@</binary>
+    </provides>
+    <launchable type="desktop-id">@HYELICHT_DOMAIN_NAME@.desktop</launchable>
+</component>

@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+  SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+  SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+-->
+<manifest
+    package="com.hyerimandeike.hyelicht"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:versionName="${versionName}"
+    android:versionCode="${versionCode}"
+    android:installLocation="auto">
+
+    <supports-screens android:largeScreens="true" android:normalScreens="true" android:anyDensity="true" android:smallScreens="true"/>
+    
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- %%INSERT_PERMISSIONS -->
+    <!-- %%INSERT_FEATURES -->
+
+    <application
+        android:hardwareAccelerated="true"
+        android:name="org.qtproject.qt5.android.bindings.QtApplication"
+        android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher">
+
+        <activity
+            android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|locale|fontScale|keyboard|keyboardHidden|navigation"
+            android:name="org.qtproject.qt5.android.bindings.QtActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTop">
+            
+            <!-- Splash screen -->
+            <meta-data android:name="android.app.splash_screen_drawable" android:resource="@drawable/splash"/>
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+
+            <meta-data android:name="android.app.auto_screen_scale_factor" android:value="true"/>
+            
+            <meta-data android:name="android.app.background_running" android:value="false"/>
+
+            <meta-data android:name="android.app.extract_android_style" android:value="none"/>
+
+            <meta-data android:name="android.app.lib_name" android:value="hyelicht"/>
+            <meta-data android:name="android.app.qt_sources_resource_id" android:resource="@array/qt_sources"/>
+            <meta-data android:name="android.app.repository" android:value="default"/>
+            <meta-data android:name="android.app.qt_libs_resource_id" android:resource="@array/qt_libs"/>
+            <meta-data android:name="android.app.bundled_libs_resource_id" android:resource="@array/bundled_libs"/>
+            
+            <!-- Deploy Qt libs as part of package -->
+            <meta-data android:name="android.app.bundle_local_qt_libs" android:value="-- %%BUNDLE_LOCAL_QT_LIBS%% --"/>
+
+            <!-- Run with local libs -->
+            <meta-data android:name="android.app.use_local_qt_libs" android:value="-- %%USE_LOCAL_QT_LIBS%% --"/>
+            <meta-data android:name="android.app.libs_prefix" android:value="/data/local/tmp/qt/"/>
+            <meta-data android:name="android.app.load_local_libs_resource_id" android:resource="@array/load_local_libs"/>
+            <meta-data android:name="android.app.load_local_jars" android:value="-- %%INSERT_LOCAL_JARS%% --"/>
+            <meta-data android:name="android.app.static_init_classes" android:value="-- %%INSERT_INIT_CLASSES%% --"/>
+        </activity>
+    </application>
+</manifest>

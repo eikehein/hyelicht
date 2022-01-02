@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+  SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+-->
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+                          http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+  <kcfgfile name="hyelichtrc"/>
+  <group name="Main">
+    <entry name="headless" key="headless" type="Bool">
+      <label>Whether the GUI should be created or not.</label>
+      <default>false</default>
+    </entry>
+    <entry name="curtain" key="curtain" type="Bool">
+      <label>Whether to show the brand curtain each time the display is turned on. This setting is only used when running in onboard mode.</label>
+      <default>true</default>
+    </entry>
+  </group>
+  <group name="Shelf">
+    <entry name="rows" key="rows" type="Int">
+      <label>The number of boards in the shelf.</label>
+      <default>4</default>
+    </entry>
+    <entry name="columns" key="columns" type="Int">
+      <label>The number of compartments in each shelf board.</label>
+      <default>5</default>
+    </entry>
+    <entry name="density" key="density" type="Int">
+      <label>The number of LEDs in each shelf compartment.</label>
+      <default>20</default>
+    </entry>
+    <entry name="wallThickness" key="wallThickness" type="Int">
+      <label>The number of LEDs behind each compartment-dividing wall. The application will turn these off most of the time, in order to improve light bleed.</label>
+      <default>1</default>
+    </entry>
+    <entry name="animateBrightnessTransitions" key="animateBrightnessTransitions" type="Bool">
+      <label>Whether to animate changes to the shelf's overall brightness. See "transitionDuration".</label>
+      <default>true</default>
+    </entry>
+    <entry name="animateAverageColorTransitions" key="animateAverageColorTransitions" type="Bool">
+      <label>Whether to animate changes to the shelf's average color (when filling). See "transitionDuration".</label>
+      <default>true</default>
+    </entry>
+    <entry name="transitionDuration" key="transitionDuration" type="Int">
+      <label>Duration in milliseconds when animating a change to the shelf's overall brightness or average color (when filling).</label>
+      <default>400</default>
+    </entry>
+  </group>
+  <group name="Leds">
+    <entry name="spiDeviceName" key="spiDeviceName" type="String">
+      <label>SPI device filename used for communication with the LEDs.</label>
+      <default>/dev/spidev0.0</default>
+    </entry>
+    <entry name="spiFrequency" key="spiFrequency" type="Int">
+      <label>Clock frequency in Hz used for SPI communication with the LEDs.</label>
+      <default>8000000</default>
+    </entry>
+    <entry name="gammaCorrection" key="gammaCorrection" type="Bool">
+      <label>Whether color values should be gamma-corrected.</label>
+      <default>true</default>
+    </entry>
+  </group>
+  <group name="DisplayController">
+    <entry name="serialPortName" key="serialPortName" type="String">
+      <label>The serial port used to communicate with the offboard PWM generator MCU.</label>
+      <default>/dev/ttyUSB0</default>
+    </entry>
+    <entry name="baudRate" key="baudRate" type="Int">
+      <label>The baud rate used to communicate with the offboard PWM generator MCU.</label>
+      <default>115200</default>
+    </entry>
+    <entry name="displayBrightness" key="displayBrightness" type="Double">
+      <label>The display brightness when turned on. This is a range from 0 to 1.</label>
+      <default>1.0</default>
+    </entry>
+    <entry name="idleTimeout" key="idleTimeout" type="Int">
+      <label>The time in seconds to wait after the last user input before turning the display off.</label>
+      <default>20</default>
+    </entry>
+    <entry name="fadeDuration" key="fadeDuration" type="Int">
+      <label>The duration in milliseconds when animating the display between two brightness values.</label>
+      <default>400</default>
+    </entry>
+  </group>
+  <group name="API">
+    <entry name="remotingApi" key="remotingApi" type="Bool">
+      <label>Whether to start the API server used to synchronize additional instances of the application, e.g. running offboard. This setting is only used when running in onboard mode.</label>
+      <default>true</default>
+    </entry>
+    <entry name="remotingListenAddress" key="remotingListenAddress" type="String">
+      <label>The listen address for the API server used to synchronize additional application instances.</label>
+      <default>tcp://0.0.0.0:8042</default>
+    </entry>
+    <entry name="remotingServerAddress" key="remotingServerAddress" type="String">
+      <label>The address client instances of the application use to synchronize with the remoting API server.</label>
+      <default>tcp://192.168.178.129:8042</default>
+    </entry>
+    <entry name="httpApi" key="httpApi" type="Bool">
+      <label>Whether to start the HTTP REST API server. This setting is only used when running in onboard mode.</label>
+      <default>true</default>
+    </entry>
+    <entry name="httpListenAddress" key="listenAddress" type="String">
+      <label>The IP address or hostname for the HTTP REST API server to listen on. This setting is only used when running in onboard mode.</label>
+      <default>127.0.0.1</default>
+    </entry>
+    <entry name="httpPort" key="port" type="Int">
+      <label>The port to listen on. This setting is only used when running in onboard mode.</label>
+      <default>8082</default>
+    </entry>
+  </group>
+</kcfg>
