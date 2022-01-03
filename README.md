@@ -23,9 +23,9 @@ A photo of the assembled shelf can be found <a href="https://www.eikehein.com/st
   - Turn shelf on/off, adjust brightness, painting tools, trigger animations
   - Runs synchronized on embedded touchscreen and multiple Android/PC devices
   - Runs in-process or standalone
-- Fireplace animation 🔥
-- SK9822/APA102 LED paint engine supporting HSV-based brightness derivation and gamma correction
+- SK9822/APA102 LED paint engine supporting gamma correction and HSV-based brightness derivation
 - Animation framework
+  - Fireplace animation 🔥
 - Embedded display backlight control with MCU-generared PWM signal
   - Smooth display fade-in on user interaction, fade-out on idle timeout
 - [HTTP REST API](#http-rest-api)
