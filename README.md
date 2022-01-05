@@ -155,13 +155,13 @@ The reference hardware used in the project is an Android Nano 3.0 (AVR ATmega328
 
 #### Optional build dependencies
 
-- For [onboard](#architecture)  build configuration:
+- For [onboard](#user-options) builds:
     - Qt v5.15+ module QtSerialPort
     - QHttpEngine v1.0.1+ 
-- For [Android build](#android):
+- For [Android](#android) builds:
     - Qt v5.15+ module QtAndroidExtras
     - Android v30+ SDK+NDK (see below)
-- For [documentation](#developer-options) build:
+- For [documentation](#developer-options) builds:
     - Doxygen v1.8.8+
     - Doxyqml
 
@@ -210,7 +210,7 @@ See the [build instructions](#build-instructions) for how to set these options w
 
 | Option | Default | Description
 | - | - | - |
-| **BUILD_ONBOARD** | **TRUE** unless Android build | In the [onboard](#architecture) build configuration, additional features and command line options become available that only make sense when Hyelicht is running on the hardware embedded into the shelf. For example, to control the LEDs and the embedded display backlight, and servers for the Touch GUI and HTTP clients. This alters the list of [build dependencies](#general-build-dependencies). |
+| **BUILD_ONBOARD** | **TRUE** unless Android build | When enabled, additional features and command line options become available that only make sense when Hyelicht is running in [onboard mode](#architecture) on the hardware embedded into the shelf. For example, code driving the LEDs and the embedded display backlight, and servers for the Touch GUI and HTTP clients. This alters the list of [build dependencies](#general-build-dependencies). |
 | **BUILD_CLI** | **TRUE** unless Android build | Builds the HTTP-based [`hyelichtctl`](#hyelichtctl-cli-utility) command line utility. |
 
 #### Developer options
@@ -226,11 +226,13 @@ See the [build instructions](#build-instructions) for how to set these options w
 
 #### systemd service unit
 
-In the [onboard](#architecture) build configuration, Hyelicht installs a [systemd](https://www.freedesktop.org/wiki/Software/systemd/) service unit. It is recommended to run it as a user unit, like so:
+In the [onboard build configuration](#user-options), Hyelicht installs a [systemd](https://www.freedesktop.org/wiki/Software/systemd/) service unit. It is recommended to use it as a user unit, like so:
 
     $ systemctl --user enable hyelicht
 
-If you just installed Hyelicht, you may need to run `systemctl --user daemon-reload` first.
+If you just installed Hyelicht, you may need to run `systemctl --user daemon-reload` first. For user units to start at boot, you may need to [enable lingering](https://www.freedesktop.org/software/systemd/man/loginctl.html) (see `enable-linger`) for the user.
+
+The service unit starts the application in [onboard mode](#architecture) and sets several environment variables specific to the project's embedded [reference hardware](#supported-platforms). It instructs Qt to select the EGLFS backend plugin, which handles GPU interaction for the Touch GUI. Other variables set the screen resolution for the embedded touchscreen. See the [Qt for Embedded Linux](https://doc.qt.io/qt-5/embedded-linux.html) page for additional information.
 
 #### diyHue integration plugin
 
@@ -254,15 +256,11 @@ See also the [system diagram](#architecture).
 
 ### Running
 
-The main application executable is named `hyelicht`.
-
-It can be run manually:
+The main application executable is named `hyelicht`. It can be run manually:
     
     $ hyelicht
 
-Or (in an [onboard](#architecture) build configuration) started in [onboard mode](#architecture)  via the included [systemd](https://www.freedesktop.org/wiki/Software/systemd/) unit:
-
-    $ systemctl --user start hyelicht
+Or via the included [systemd service unit](#systemd-service-unit), which conveniently sets command line options and environment variables suitable for an embedded deployment. Check the linked section for detailed information.
 
 The `hyelichtctl` command line utility is described [below](#hyelichtctl-cli-utility).
 
@@ -282,7 +280,7 @@ Command line options unique to `hyelicht`:
 
 | Option | Default | Description
 | - | - | - |
-| **-o, --onboard** | **UNSET** | Runs the application in [onboard mode](#architecture) . This is used by the [systemd service unit](#systemd-service-unit). |
+| **-o, --onboard** | **UNSET** | Runs the application in [onboard mode](#architecture). This is used by the [systemd service unit](#systemd-service-unit). |
 | **--headless** | **UNSET** | Disables the in-process Touch GUI. Useful if running the GUI out-of-process as a standalone client instance is desired. |
 | **--simulateDisplay** | **UNSET** | Disables serial communication to the helper MCU and simulates display backlight status in the Touch GUI. |
 | **--simulateShelf** | **UNSET** | Disables SPI communication with the LED strip. The Touch GUI and all APIs can be used regardless. |
