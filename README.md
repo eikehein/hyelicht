@@ -124,18 +124,20 @@ Hyelicht has a largely platform-agnostic codebase that should build and run on a
 
 Hyelicht is being tested on the following hardware and software:
 
-- Onboard mode: Raspberry Pi 4B running Raspberry OS
+- Onboard mode:
+  - Raspberry Pi 4B running Raspberry OS
+  - Waveshare 7″ 1024x600 capacitive touchscreen, version H
 - Standalone Touch GUI mode:
   - Desktop PC: Fedora Linux
   - Android phone: Android+Qt+KDE SDK via the [KDE Android Docker image](https://community.kde.org/Android/Environment_via_Container) and several Android 11/12 phones
-- LED strip: 416x SK9822 
+- LED strips: 416x SK9822, 60 LEDs/m
 - Helper MCU: Android Nano 3.0 (AVR ATmega328)
 
 See section [Architecture](#architecture) for an explanation of the modes.
 
 #### LEDs
 
-The reference hardware for the project uses SK9822 LEDs. However, the custom LED paint engine should also be compatible with APA102 LEDs. The SK9822 is a later clone of APA102 with minimal differences in the accepted input.
+The reference hardware for the project uses SK9822 LEDs from 60 LED/m strip reels. However, the custom LED paint engine should also be compatible with APA102 LEDs. The SK9822 is a later clone of APA102 with minimal differences in the accepted input.
 
 #### Helper MCU (PWM signal generator)
 
