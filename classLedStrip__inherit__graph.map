@@ -1,0 +1,5 @@
+<map id="LedStrip" name="LedStrip">
+<area shape="rect" id="node1" title="Connects to and performs painting operations on a strip of SK9822/APA102 LEDs." alt="" coords="71,80,145,107"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,5,80,32"/>
+<area shape="rect" id="node3" title=" " alt="" coords="105,5,245,32"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" title=" " alt="" coords="10,5,159,32"/>
+<area shape="rect" id="node2" href="$classShelfModel.html" title="Data model and business logic specific to the Hyelicht shelf." alt="" coords="238,5,333,32"/>
+<area shape="rect" id="node3" title=" " alt="" coords="5,56,164,83"/>
+<area shape="rect" id="node4" href="$classRemoteShelfModel.html" title="Client for the remoting server provided by ShelfModel." alt="" coords="212,56,359,83"/>
+<area shape="rect" id="node5" title=" " alt="" coords="47,157,122,184"/>
+<area shape="rect" id="node6" href="$classDisplayController.html" title="Provides PWM&#45;based display backlight control with the help of an attached MCU." alt="" coords="218,107,353,133"/>
+<area shape="rect" id="node7" href="$classHttpServer.html" title="HTTP REST API binding and server for ShelfModel." alt="" coords="239,157,331,184"/>
+<area shape="rect" id="node8" href="$classLedStrip.html" title="Connects to and performs painting operations on a strip of SK9822/APA102 LEDs." alt="" coords="248,208,323,235"/>
+<area shape="rect" id="node9" title=" " alt="" coords="15,107,155,133"/>
+</map>

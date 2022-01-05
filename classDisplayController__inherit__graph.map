@@ -1,0 +1,5 @@
+<map id="DisplayController" name="DisplayController">
+<area shape="rect" id="node1" title="Provides PWM&#45;based display backlight control with the help of an attached MCU." alt="" coords="41,80,175,107"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,5,80,32"/>
+<area shape="rect" id="node3" title=" " alt="" coords="105,5,245,32"/>
+</map>

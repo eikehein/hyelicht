@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" title=" " alt="" coords="5,5,97,32"/>
+<area shape="rect" id="node2" href="$classAbstractAnimation.html" title="Abstract base class for LED strip animations operating on LedStrip." alt="" coords="145,5,288,32"/>
+<area shape="rect" id="node3" href="$classFireAnimation.html" title="Simple fire animation to turn the shelf into a digital fireplace." alt="" coords="336,5,449,32"/>
+</map>

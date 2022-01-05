@@ -1,0 +1,6 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" title=" " alt="" coords="5,56,84,83"/>
+<area shape="rect" id="node2" href="$classNonVisualItem.html" title="Extends QtObject with a default property for use as headless declarative base item." alt="" coords="132,5,251,32"/>
+<area shape="rect" id="node3" href="$classOnboard.html" title="Singleton providing UI margins to use when the UI in onboard mode." alt="" coords="153,56,230,83"/>
+<area shape="rect" id="node4" href="$classTheme.html" title="Singleton providing UI colors and fonts, and helper functions." alt="" coords="158,107,225,133"/>
+</map>

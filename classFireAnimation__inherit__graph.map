@@ -1,0 +1,5 @@
+<map id="FireAnimation" name="FireAnimation">
+<area shape="rect" id="node1" title="Simple fire animation to turn the shelf into a digital fireplace." alt="" coords="20,155,133,181"/>
+<area shape="rect" id="node2" href="$classAbstractAnimation.html" title="Abstract base class for LED strip animations operating on LedStrip." alt="" coords="5,80,148,107"/>
+<area shape="rect" id="node3" title=" " alt="" coords="31,5,123,32"/>
+</map>
