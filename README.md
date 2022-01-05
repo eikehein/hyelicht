@@ -78,7 +78,7 @@ The codebase is [REUSE](https://reuse.software/)- and [SPDX](https://spdx.org/li
       - [Developer options](#developer-options)
   - [Deployment](#deployment)
       - [systemd service unit](#systemd-service-unit)
-      - [LED wiring](#wiring)
+      - [Wiring](#wiring)
       - [diyHue integration plugin](#diyhue-integration-plugin)
   - [Running](#running)
       - [Command line options](#command-line-options)
@@ -98,7 +98,7 @@ The full Hyelicht system contains the following elements:
 
 <img src="docs/system_diagram.png?raw=true" alt="System diagram" width="740"/>
 
- (See below for additional detail on [wiring](#wiring).)
+(See below for additional detail on [wiring](#wiring).)
 
 Hyelicht has a main application codebase with multiple build+runtime modes for **onboard** (embedded with or without in-process Touch GUI) and **standalone Touch GUI** (client) use. A monolithic-by-default single-application architecture was chosen to minimize resource needs and loading times in onboard mode. Internally, the application heavily optimizes for each mode. For details on how to choose the mode, see the sections on [build options](#build-options) and [command line options](#command-line-options).
 
