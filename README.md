@@ -259,10 +259,14 @@ See also the [system diagram](#architecture).
 ### Running
 
 The main application executable is named `hyelicht`. It can be run manually:
-    
+
     $ hyelicht
 
 Or via the included [systemd service unit](#systemd-service-unit), which conveniently sets command line options and environment variables suitable for an embedded deployment. Check the linked section for detailed information.
+
+If you want to try out Hyelicht's embedded GUI on your PC without having LEDs handy, run a [default build](#user-options) like this:
+
+    $ hyelicht --onboard --simulate-shelf --simulate-display
 
 The `hyelichtctl` command line utility is described [below](#hyelichtctl-cli-utility).
 
