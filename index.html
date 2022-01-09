@@ -365,7 +365,8 @@ Wiring</h4>
 Running</h3>
 <p >The main application executable is named <code>hyelicht</code>. It can be run manually: </p><pre class="fragment">$ hyelicht
 </pre><p> Or via the included <a class="el" href="index.html#systemd-service-unit">systemd service unit</a>, which conveniently sets command line options and environment variables suitable for an embedded deployment. Check the linked section for detailed information.</p>
-<p >The <code>hyelichtctl</code> command line utility is described <a class="el" href="index.html#hyelichtctl-cli-utility">below</a>.</p>
+<p >If you want to try out Hyelicht's embedded GUI on your PC without having LEDs handy, run a <a class="el" href="index.html#user-options">default build</a> like this: </p><pre class="fragment">$ hyelicht --onboard --simulate-shelf --simulate-display
+</pre><p> The <code>hyelichtctl</code> command line utility is described <a class="el" href="index.html#hyelichtctl-cli-utility">below</a>.</p>
 <h4><a class="anchor" id="command-line-options"></a>
 Command line options</h4>
 <p ><code>hyelicht</code> supports standard command options options such as <b>-h, &ndash;help</b>.</p>
