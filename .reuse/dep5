@@ -14,6 +14,14 @@ Files: src/declarative/assets/*.png
 Copyright: 2021-2022 Eike Hein <sho@eikehein.com>
 License: CC-BY-4.0
 
+Files: support/homeassistant/hyelicht/*.json
+Copyright: 2024 Eike Hein <sho@eikehein.com>
+License: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+
+Files: support/homeassistant/hyelicht/translations/*.json
+Copyright: 2024 Eike Hein <sho@eikehein.com>
+License: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+
 Files: data/android/res*.png
 Copyright: 2021-2022 Eike Hein <sho@eikehein.com>
 License: CC-BY-4.0

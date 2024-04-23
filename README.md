@@ -1,14 +1,14 @@
 <!--
 SPDX-License-Identifier: CC-BY-4.0
-SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
 -->
 
 <img id="body-logo" src="data/icons/sc-apps-hyelicht.svg?raw=true" alt="Hyelicht icon" width="64" height="64" align="right" />
 
 # Hyelicht
 
-[![REUSE status](https://api.reuse.software/badge/github.com/eikehein/hyelicht)](https://api.reuse.software/info/github.com/eikehein/hyelicht) 
-[![Linux (Onboard)](https://github.com/eikehein/hyelicht/actions/workflows/linux_onboard.yml/badge.svg)](https://github.com/eikehein/hyelicht/actions/workflows/linux_onboard.yml) [![Android (Client)](https://github.com/eikehein/hyelicht/actions/workflows/android_client.yml/badge.svg)](https://github.com/eikehein/hyelicht/actions/workflows/android_client.yml) 
+[![REUSE status](https://api.reuse.software/badge/github.com/eikehein/hyelicht)](https://api.reuse.software/info/github.com/eikehein/hyelicht)
+[![Linux (Onboard)](https://github.com/eikehein/hyelicht/actions/workflows/linux_onboard.yml/badge.svg)](https://github.com/eikehein/hyelicht/actions/workflows/linux_onboard.yml) [![Android (Client)](https://github.com/eikehein/hyelicht/actions/workflows/android_client.yml/badge.svg)](https://github.com/eikehein/hyelicht/actions/workflows/android_client.yml)
 [![Documentation](https://github.com/eikehein/hyelicht/actions/workflows/doxygen.yml/badge.svg)](https://eikehein.github.io/hyelicht/)
 
 **Hyelicht** is an IoT/embedded project for home decoration/automation. Its software allows you to do colorful painting and animations on a LED-backlit shelf, using an embedded touchscreen and a companion app for phones and PCs. It also offers integration with a smart lights system.
@@ -30,7 +30,7 @@ A photo of the assembled shelf can be found <a href="https://www.eikehein.com/st
   - Smooth display fade-in on user interaction, fade-out on idle timeout
 - [HTTP REST API](#http-rest-api)
 - CLI frontend utility [`hyelichtctl`](#hyelichtctl-cli-utility) (HTTP-based), works locally and over the network
-- [Philips Hue](https://en.wikipedia.org/wiki/Philips_Hue) smart lights integration: HTTP-based [plugin](#diyhue-integration-plugin) for the [diyHue](https://diyhue.org/) open source bridge emulator
+- [Home Assistant](https://www.home-assistant.io/) integration
 - [systemd integration](#systemd-service-unit) (service unit)
 - [Doxygen](https://www.doxygen.nl/)-based [documentation](#source-code)
 - [REUSE](https://reuse.software/)- and [SPDX](https://spdx.org/licenses/)-compliant free software written in C++17 and QML
@@ -79,7 +79,7 @@ The codebase is [REUSE](https://reuse.software/)- and [SPDX](https://spdx.org/li
   - [Deployment](#deployment)
       - [systemd service unit](#systemd-service-unit)
       - [Wiring](#wiring)
-      - [diyHue integration plugin](#diyhue-integration-plugin)
+      - [Home Assistant integration](#home-assistant-integration)
   - [Running](#running)
       - [Command line options](#command-line-options)
       - [Additional command line options for onboard build configuration](#additional-command-line-options-for-onboard-build-configuration)
@@ -106,7 +106,7 @@ In **onboard mode**, the application controls the LED strip and the display back
 
 Additionally, the onboard application can also be run in [**headless mode**](#additional-command-line-options-for-onboard-build-configuration). This disables the in-process Touch GUI. An additional instance in Touch GUI mode can then be run as a pure client on the same device, if process separation is desired.
 
-Included clients to the HTTP REST API include a command line frontend utility [`hyelichtctl`](#hyelichtctl-cli-utility) and a [diyHue integration plugin](#diyhue-integration-plugin).
+Included clients to the HTTP REST API include a command line frontend utility [`hyelichtctl`](#hyelichtctl-cli-utility) and a [Home Assistant integration](#home-assistant-integration).
 
 ### Source code
 
@@ -159,7 +159,7 @@ The reference hardware used in the project is an Android Nano 3.0 (AVR ATmega328
 
 - For [onboard](#user-options) builds:
     - Qt v5.15+ module QtSerialPort
-    - QHttpEngine v1.0.1+ 
+    - QHttpEngine v1.0.1+
 - For [Android](#android) builds:
     - Qt v5.15+ module QtAndroidExtras
     - Android v30+ SDK+NDK (see below)
@@ -236,13 +236,13 @@ If you just installed Hyelicht, you may need to run `systemctl --user daemon-rel
 
 The service unit starts the application in [onboard mode](#architecture) and sets several environment variables specific to the project's embedded [reference hardware](#supported-platforms). It instructs Qt to select the EGLFS backend plugin, which handles GPU interaction for the Touch GUI. Other variables set the screen resolution for the embedded touchscreen. See the [Qt for Embedded Linux](https://doc.qt.io/qt-5/embedded-linux.html) page for additional information.
 
-#### diyHue integration plugin
+#### Home Assistant integration
 
-Plugin code for simple integration with [diyHue](https://diyhue.org/) is provided at `support/diyhue_hyelicht.py`.
+Plugin code for simple integration with [Home Assistant](https://www.home-assistant.io/) is provided at `support/homeassistant/hyelicht`.
 
-However, diyHue does not support external plugin installation and must be patched to use the plugin. The shelf must also be manually added to the diyHue configuration. Both are left as an exercise for the reader.
+Copy the `hyelicht` folder into `<Your Home Assistant config dir>/custom_components` (create the folder `custom_components` if necessary), then add the integration from your Home Assistant settings menu. You will be prompted for the host address and port of the Hyelicht shelf.
 
-The plugin acts as a client to the [HTTP REST API](#http-rest-api).
+The integration plugin acts as a client to the [HTTP REST API](#http-rest-api).
 
 #### Wiring
 
@@ -347,7 +347,7 @@ Data is returned and accepted in [JSON](https://www.json.org/) format.
 
 See the [system diagram](#architecture) to understand the numbering of squares for square indices.
 
-The HTTP REST API is used by the included [`hyelichtctl`](#hyelichtctl-cli-utility) command line frontend and [diyHue integration plugin](#diyhue-integration-plugin).
+The HTTP REST API is used by the included [`hyelichtctl`](#hyelichtctl-cli-utility) command line frontend and the [Home Assistant integration](#home-assistant-integration).
 
 ***
 

@@ -1,0 +1,12 @@
+{
+  "domain": "hyelicht",
+  "name": "Hyelicht",
+  "codeowners": ["@eikehein"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://eikehein.github.io/hyelicht/",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "requirements": [],
+  "version": "0.1"
+}
