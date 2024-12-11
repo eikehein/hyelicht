@@ -1,11 +1,10 @@
 /*
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
- * SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+ * SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
  */
 
 #include "abstractanimation.h"
 #include "debug_animations.h"
-#include "ledstrip.h"
 
 AbstractAnimation::AbstractAnimation(QObject *parent)
     : QTimeLine(1000, parent)
@@ -28,6 +27,6 @@ void AbstractAnimation::setLedStrip(LedStrip *ledStrip)
     if (m_ledStrip != ledStrip) {
         m_ledStrip = ledStrip;
 
-        emit ledStripChanged();
+        Q_EMIT ledStripChanged();
     }
 }

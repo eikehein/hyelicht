@@ -1,13 +1,12 @@
 /*
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
- * SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+ * SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
  */
 
 #include "shelfmodel.h"
-#include "abstractanimation.h"
 #include "debug.h"
 #include "debug_remoting.h"
-#include "ledstrip.h"
+#include "rep_remoteshelfmodeliface_merged.h"
 
 #include <KLocalizedString>
 
@@ -49,12 +48,12 @@ ShelfModel::ShelfModel(QObject *parent)
             if (m_brightnessTransition.state() != QAbstractAnimation::Running) {
                 return;
             }
-            
+
             syncBrightness();
 
-            emit dataChanged(index(0, 0), index(rowCount() - 1, 0));
+            Q_EMIT dataChanged(index(0, 0), index(rowCount() - 1, 0));
         }
-    );   
+    );
 
     QObject::connect(&m_brightnessTransition, &QVariantAnimation::stateChanged, this,
         [=](const QAbstractAnimation::State newState, const QAbstractAnimation::State oldState) {
@@ -65,7 +64,7 @@ ShelfModel::ShelfModel(QObject *parent)
                 updateAnimation();
             }
         }
-    );       
+    );
 
     m_averageColorTransition.setDuration(m_transitionDuration);
 
@@ -84,7 +83,7 @@ ShelfModel::ShelfModel(QObject *parent)
             setRangesToColor(value.value<QColor>());
             m_ledStrip->show();
 
-            emit dataChanged(index(0, 0), index(rowCount() - 1, 0));
+            Q_EMIT dataChanged(index(0, 0), index(rowCount() - 1, 0));
         }
     );
 }
@@ -109,7 +108,7 @@ void ShelfModel::setLedStrip(LedStrip *ledStrip)
             m_animation->setLedStrip(m_ledStrip);
         }
 
-        if (m_ledStrip) {            
+        if (m_ledStrip) {
             if (!m_createdByQml || m_complete) {
                 updateLedStrip();
                 syncBrightness();
@@ -132,14 +131,14 @@ void ShelfModel::setLedStrip(LedStrip *ledStrip)
 
                     endResetModel();
 
-                    emit averageColorChanged();
+                    Q_EMIT averageColorChanged(averageColor());
                 }
             );
         }
 
         endResetModel();
 
-        emit ledStripChanged();
+        Q_EMIT ledStripChanged();
     }
 }
 
@@ -154,7 +153,7 @@ void ShelfModel::setEnabled(bool enabled)
         m_enabled = enabled;
 
         if (!m_createdByQml || m_complete) {
-            abortTransitions(); 
+            abortTransitions();
 
             // When the shelf is enabled while it is fully painted black,
             // repaint it fully white implicitly for reasonable default
@@ -182,7 +181,7 @@ void ShelfModel::setEnabled(bool enabled)
 
                     m_ledStrip->show();
 
-                    emit dataChanged(index(0, 0), index(rowCount() - 1, 0));
+                    Q_EMIT dataChanged(index(0, 0), index(rowCount() - 1, 0));
                 }
             } else {
                 m_pendingBrightnessTransition = true;
@@ -190,10 +189,10 @@ void ShelfModel::setEnabled(bool enabled)
                 updateAnimation();
             }
         } else {
-            emit dataChanged(index(0, 0), index(rowCount() - 1, 0));
+            Q_EMIT dataChanged(index(0, 0), index(rowCount() - 1, 0));
         }
 
-        emit enabledChanged();
+        Q_EMIT enabledChanged(m_enabled);
     }
 }
 
@@ -207,7 +206,7 @@ void ShelfModel::setRows(int rows)
     if (rows < 1) {
         if (rows == 1) {
             qCWarning(HYELICHT) << i18n("setRows: '%1' rows requested, but cannot be lower than 1."
-            "Already at 1.", rows);            
+            "Already at 1.", rows);
         } else {
             qCWarning(HYELICHT) << i18n("setRows: '%1' rows requested, but cannot be lower than 1."
             "Setting 1.", rows);
@@ -221,13 +220,13 @@ void ShelfModel::setRows(int rows)
 
         if ((!m_createdByQml || m_complete) && m_ledStrip) {
             beginResetModel();
-            
+
             updateLedStrip();
-            
+
             endResetModel();
         }
 
-        emit rowsChanged();
+        Q_EMIT rowsChanged(m_rows);
     }
 }
 
@@ -242,7 +241,7 @@ void ShelfModel::setColumns(int columns)
         if (columns == 1) {
             qCWarning(HYELICHT) << i18n("setColumns: '%1' rows requested, but cannot be lower than 1."
             "Already at 1.",
-            columns);            
+            columns);
         } else {
             qCWarning(HYELICHT) << i18n("setColumns: '%1' rows requested, but cannot be lower than 1."
             "Setting 1.", columns);
@@ -256,13 +255,13 @@ void ShelfModel::setColumns(int columns)
 
         if ((!m_createdByQml || m_complete) && m_ledStrip) {
             beginResetModel();
-            
+
             updateLedStrip();
-            
+
             endResetModel();
         }
 
-        emit columnsChanged();
+        Q_EMIT columnsChanged(m_columns);
     }
 }
 
@@ -277,7 +276,7 @@ void ShelfModel::setDensity(int density)
         if (density == 1) {
             qCWarning(HYELICHT) << i18n("setDensity: '%1' rows requested, but cannot be lower than 1."
             "Already at 1.",
-            density);            
+            density);
         } else {
             qCWarning(HYELICHT) << i18n("setDensity: '%1' rows requested, but cannot be lower than 1."
             "Setting 1.", density);
@@ -291,13 +290,13 @@ void ShelfModel::setDensity(int density)
 
         if ((!m_createdByQml || m_complete) && m_ledStrip) {
             beginResetModel();
-            
+
             updateLedStrip();
-            
+
             endResetModel();
         }
 
-        emit densityChanged();
+        Q_EMIT densityChanged(m_density);
     }
 }
 
@@ -312,7 +311,7 @@ void ShelfModel::setWallThickness(int thickness)
         if (thickness == 0) {
             qCWarning(HYELICHT) << i18n("setWallThickness: '%1' rows requested, but cannot be lower than 0."
             "Already at 0.",
-            thickness);            
+            thickness);
         } else {
             qCWarning(HYELICHT) << i18n("setWallThickness: '%1' rows requested, but cannot be lower than 1."
             "Setting 1.", thickness);
@@ -326,13 +325,13 @@ void ShelfModel::setWallThickness(int thickness)
 
         if ((!m_createdByQml || m_complete) && m_ledStrip) {
             beginResetModel();
-            
+
             updateLedStrip();
-            
+
             endResetModel();
         }
 
-        emit wallThicknessChanged();
+        Q_EMIT wallThicknessChanged(m_wallThickness);
     }
 }
 
@@ -384,16 +383,16 @@ void ShelfModel::setBrightness(qreal brightness)
                 } else {
                     syncBrightness();
                 }
-                
-                emit dataChanged(index(0, 0), index(rowCount() - 1, 0));
+
+                Q_EMIT dataChanged(index(0, 0), index(rowCount() - 1, 0));
             }
         } else {
             m_brightness = brightness;
 
-            emit dataChanged(index(0, 0), index(rowCount() - 1, 0));
+            Q_EMIT dataChanged(index(0, 0), index(rowCount() - 1, 0));
         }
-       
-        emit brightnessChanged();
+
+        Q_EMIT brightnessChanged(m_brightness);
     }
 }
 
@@ -412,11 +411,11 @@ void ShelfModel::setAnimateBrightnessTransitions(bool animate)
 
             // Calls `LedStrip::show`.
             syncBrightness();
-            
-            emit dataChanged(index(0, 0), index(rowCount() - 1, 0));
+
+            Q_EMIT dataChanged(index(0, 0), index(rowCount() - 1, 0));
         }
 
-        emit animateBrightnessTransitionsChanged();
+        Q_EMIT animateBrightnessTransitionsChanged(m_animateBrightnessTransitions);
     }
 }
 
@@ -456,8 +455,8 @@ void ShelfModel::setAverageColor(const QColor &color)
             setAnimating(false);
 
             m_averageColor = color;
-            emit averageColorChanged();
-            
+            Q_EMIT averageColorChanged(averageColor());
+
             setEnabled(true);
         }
     }
@@ -480,7 +479,7 @@ void ShelfModel::setAverageColor(const QColor &color)
                 if (wasAnimating) {
                     setRangesToColor(averageColor());
                     m_ledStrip->show();
-                    emit dataChanged(index(0, 0), index(rowCount() - 1, 0));
+                    Q_EMIT dataChanged(index(0, 0), index(rowCount() - 1, 0));
                 }
 
                 // Implicitly enable the shelf.
@@ -495,20 +494,20 @@ void ShelfModel::setAverageColor(const QColor &color)
 
                 // Implicitly enable the shelf.
                 if (!m_enabled) {
-                    // Will call `LedStrip::show` and emit `dataChanged` for all
+                    // Will call `LedStrip::show` and Q_EMIT `dataChanged` for all
                     // model indices.
                     setEnabled(true);
                 } else {
                     m_ledStrip->show();
-                    emit dataChanged(index(0, 0), index(rowCount() - 1, 0));
+                    Q_EMIT dataChanged(index(0, 0), index(rowCount() - 1, 0));
                 }
-                
+
             }
         } else {
-            emit dataChanged(index(0, 0), index(rowCount() - 1, 0));
+            Q_EMIT dataChanged(index(0, 0), index(rowCount() - 1, 0));
         }
 
-        emit averageColorChanged();
+        Q_EMIT averageColorChanged(averageColor());
     }
 }
 
@@ -530,11 +529,11 @@ void ShelfModel::setAnimateAverageColorTransitions(bool animate)
             if (m_enabled) {
                 m_ledStrip->show();
             }
-            
-            emit dataChanged(index(0, 0), index(rowCount() - 1, 0));
+
+            Q_EMIT dataChanged(index(0, 0), index(rowCount() - 1, 0));
         }
 
-        emit animateAverageColorTransitionsChanged();
+        Q_EMIT animateAverageColorTransitionsChanged(m_animateAverageColorTransitions);
     }
 }
 
@@ -551,7 +550,7 @@ void ShelfModel::setTransitionDuration(int duration)
         m_brightnessTransition.setDuration(m_transitionDuration);
         m_averageColorTransition.setDuration(m_transitionDuration);
 
-        emit transitionDurationChanged();
+        Q_EMIT transitionDurationChanged(m_transitionDuration);
     }
 }
 
@@ -572,13 +571,11 @@ void ShelfModel::setAnimation(AbstractAnimation *animation)
         if (m_animation) {
             QObject::connect(m_animation, &AbstractAnimation::destroyed, this,
                 [=]() {
-                    emit animationChanged();
+                    Q_EMIT animationChanged();
                     setAnimating(false);
                 }
             );
 
-            QObject::connect(m_animation, &AbstractAnimation::stateChanged, this,
-                &ShelfModel::animatingChanged);
             QObject::connect(m_animation, &AbstractAnimation::stateChanged, this,
                 [=](QTimeLine::State newState) {
                     if (newState == QTimeLine::Running) {
@@ -598,8 +595,8 @@ void ShelfModel::setAnimation(AbstractAnimation *animation)
                             m_ledStrip->show();
                         }
 
-                        emit dataChanged(index(0, 0), index(rowCount() - 1, 0));
-                        emit averageColorChanged();
+                        Q_EMIT dataChanged(index(0, 0), index(rowCount() - 1, 0));
+                        Q_EMIT averageColorChanged(averageColor());
                     }
                 }
             );
@@ -607,12 +604,12 @@ void ShelfModel::setAnimation(AbstractAnimation *animation)
             QObject::connect(m_animation, &AbstractAnimation::frameComplete, this,
                 [=]() {
                     if (m_enabled) {
-                        emit dataChanged(index(0, 0), index(rowCount() - 1, 0));
-                        emit averageColorChanged();
+                        Q_EMIT dataChanged(index(0, 0), index(rowCount() - 1, 0));
+                        Q_EMIT averageColorChanged(averageColor());
 
                         if (m_pendingBrightnessTransition) {
                             transitionToCurrentBrightness();
-                            
+
                             m_pendingBrightnessTransition = false;
                         }
                     }
@@ -626,7 +623,7 @@ void ShelfModel::setAnimation(AbstractAnimation *animation)
             setAnimating(false);
         }
 
-        emit animationChanged();
+        Q_EMIT animationChanged();
     }
 }
 
@@ -651,7 +648,7 @@ void ShelfModel::setAnimating(bool animating)
             }
         }
 
-        emit animatingChanged();
+        Q_EMIT animatingChanged(m_animating);
     }
 }
 
@@ -662,7 +659,7 @@ QHash<int, QByteArray> ShelfModel::roleNames() const
     QMetaEnum e {metaObject()->enumerator(metaObject()->indexOfEnumerator("AdditionalRoles"))};
 
     for (int i {0}; i < e.keyCount(); ++i) {
-        QString key {e.key(i)};
+        QString key {QString::fromLatin1(e.key(i))};
         key.replace(0, 1, key.at(0).toLower());
         roles.insert(e.value(i), key.toLatin1());
     }
@@ -754,7 +751,7 @@ bool ShelfModel::setData(const QModelIndex &index, const QVariant &value, int ro
         return false;
     }
 
-    if (!value.canConvert(QMetaType::QColor))
+    if (!value.canConvert(QMetaType(QMetaType::QColor)))
     {
         return false;
     }
@@ -772,7 +769,7 @@ bool ShelfModel::setData(const QModelIndex &index, const QVariant &value, int ro
     if (m_animating) {
         setAnimating(false);
     }
-    
+
     m_ledStrip->setColor(range.first, range.second, newColor);
     m_ledStrip->show();
 
@@ -782,16 +779,16 @@ bool ShelfModel::setData(const QModelIndex &index, const QVariant &value, int ro
     // likely to be used, by frontends / their users) shortcut.
     if (averageColor() == QStringLiteral("black")) {
         setEnabled(false);
-    // Implicitly enable the shelf. This will emit a data
-    // change signal for all model indices, so no need to emit
+    // Implicitly enable the shelf. This will Q_EMIT a data
+    // change signal for all model indices, so no need to Q_EMIT
     // `dataChanged()` here.
     } else if (!m_enabled) {
         setEnabled(true);
     } else {
-        emit dataChanged(index, index);
+        Q_EMIT dataChanged(index, index);
     }
 
-    emit averageColorChanged();
+    Q_EMIT averageColorChanged(averageColor());
 
     return true;
 }
@@ -810,7 +807,7 @@ void ShelfModel::setRemotingEnabled(bool enabled)
             updateRemoting();
         }
 
-        emit remotingEnabledChanged();
+        Q_EMIT remotingEnabledChanged();
     }
 }
 
@@ -828,7 +825,7 @@ void ShelfModel::setListenAddress(const QUrl &url)
             updateRemoting();
         }
 
-        emit listenAddressChanged();
+        Q_EMIT listenAddressChanged();
     }
 }
 
@@ -840,7 +837,7 @@ void ShelfModel::classBegin()
 void ShelfModel::componentComplete()
 {
     m_complete = true;
-    
+
     updateLedStrip();
     updateAnimation();
     syncBrightness(); // Calls `LedStrip::show`.
@@ -855,7 +852,7 @@ QPair<int, int> ShelfModel::rowIndexToRange(const int rowIndex) const
     const int rowLength {m_columns * m_density + (m_columns - 1) * m_wallThickness};
     const int first {(std::max(0, (m_rows - 1) - row) * rowLength)
         + std::max(0, indexInRow * m_density) + (indexInRow * m_wallThickness)};
-    
+
     return QPair<int, int>(first, first + m_density - 1);
 }
 
@@ -953,8 +950,8 @@ void ShelfModel::updateRemoting()
     if (m_remotingEnabled && (m_listenAddress.isEmpty() || !m_listenAddress.isValid()) && m_remotingServer) {
         delete m_remotingServer;
         m_remotingServer = nullptr;
-        
-        emit remotingEnabledChanged();
+
+        Q_EMIT remotingEnabledChanged();
     }
 
     if (m_remotingEnabled && m_listenAddress.isValid()) {
@@ -972,7 +969,7 @@ void ShelfModel::updateRemoting()
                 return;
             }
 
-            if (!m_remotingServer->enableRemoting(this, QStringLiteral("shelfModelApi"))) {
+            if (!m_remotingServer->enableRemoting<RemoteShelfModelIfaceSourceAPI>(this)) {
                 qCCritical(HYELICHT_REMOTING) << i18n("Error exporting extended shelf model API on the remoting API server.");
 
                 return;

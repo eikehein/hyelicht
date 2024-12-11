@@ -1,46 +1,39 @@
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-# SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+# SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
 
 name: Linux (Onboard)
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 env:
   BUILD_TYPE: Release
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # Current base for KDE Neon
     container:
-      image: kdeneon/plasma:user
+      image: invent-registry.kde.org/neon/docker-images/plasma:developer
       options: --user root
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential git cmake gettext
-        sudo apt-get install -y qtbase5-dev qtdeclarative5-dev qtquickcontrols2-5-dev libqt5remoteobjects5-dev libqt5serialport5-dev libkf5config-dev
-        sudo apt-get install -y libkf5coreaddons-dev libkf5i18n-dev extra-cmake-modules
+      - name: Install dependencies
+        run: |
+          apt-get update
+          apt-get install -y build-essential git cmake gettext
+          apt-get install -y qt6-base-dev qt6-declarative-dev qt6-httpserver-dev qt6-remoteobjects-dev \
+            qt6-serialport-dev qt6-shadertools-dev qt6-websockets-dev
+          apt-get install -y extra-cmake-modules kf6-kconfig-dev kf6-kcoreaddons-dev kf6-ki18n-dev
 
-    - name: Install latest QHttpEngine
-      run: |
-          git clone https://github.com/nitroshare/qhttpengine.git
-          cd qhttpengine
-          mkdir build
-          cd build
-          cmake -DCMAKE_BUILD_TYPE=release -DCMAKE_INSTALL_PREFIX=/usr ../
-          make
-          sudo make install
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
-    - name: Configure Hyelicht
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-
-    - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      - name: Build
+        run: cmake --build build --config ${{env.BUILD_TYPE}}

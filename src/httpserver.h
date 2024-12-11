@@ -1,6 +1,6 @@
 /*
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
- * SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+ * SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
  */
 
 #pragma once
@@ -10,14 +10,14 @@
 #include <QPointer>
 #include <QQmlParserStatus>
 
-class ShelfModel;
+#include "shelfmodel.h"
 
 #ifdef HYELICHT_BUILD_ONBOARD
-namespace QHttpEngine {
-    class QObjectHandler;
-    class Server;
-    class Socket;
-}
+class QHttpHeaders;
+class QHttpServer;
+class QHttpServerRequest;
+class QHttpServerResponder;
+class QTcpServer;
 #endif
 
 //! HTTP REST API binding and server for ShelfModel
@@ -99,7 +99,7 @@ class HttpServer : public QObject, public QQmlParserStatus
         * \sa enabled (property)
         * \sa setEnabled
         * \sa enabledChanged
-        */ 
+        */
         bool enabled() const;
 
         //! Turn the server on or off.
@@ -117,7 +117,7 @@ class HttpServer : public QObject, public QQmlParserStatus
         * \sa setListenAddress
         * \sa listenAddressChanged
         * \sa port
-        */ 
+        */
         QString listenAddress() const;
 
         //! Set the listen address for the server.
@@ -136,7 +136,7 @@ class HttpServer : public QObject, public QQmlParserStatus
         * \sa setPort
         * \sa portChanged
         * \sa listenAddress
-        */ 
+        */
         int port() const;
 
         //! Set the port the server listens on.
@@ -154,7 +154,7 @@ class HttpServer : public QObject, public QQmlParserStatus
         * \sa model (property)
         * \sa setModel
         * \sa modelChanged
-        */ 
+        */
         ShelfModel *model() const;
 
         //! Set the ShelfModel instance this server provides a HTTP REST API binding for.
@@ -207,11 +207,13 @@ class HttpServer : public QObject, public QQmlParserStatus
     private:
         void updateServer();
 #ifdef HYELICHT_BUILD_ONBOARD
-        std::function<void(QHttpEngine::Socket *)> propHandler(const char *prop);
-        std::function<void(QHttpEngine::Socket *)> modelRowHandler(const char *prop,
+        std::function<void(const QHttpServerRequest &, QHttpServerResponder &)> propHandler(const char *prop);
+        std::function<void(const QHttpServerRequest &, QHttpServerResponder &)> modelRowHandler(const char *prop,
             const int index, const int role);
-        void propToJSon(QHttpEngine::Socket *socket, const QObject *obj, const char *name);
-        void jsonToProp(QHttpEngine::Socket *socket, QObject *obj, const char *name);
+        void propToJSon(QHttpServerResponder &responder, const QHttpHeaders &headers,
+            const QObject *obj, const char *name);
+        void jsonToProp(const QHttpServerRequest &request, QHttpServerResponder &responder,
+            const QHttpHeaders &headers, QObject *obj, const char *name);
 #endif
         QJsonObject rowToJson(const QModelIndex &modelIndex);
         QHash<int, QVariant> jsonToModelRole(const QJsonDocument &document,
@@ -223,8 +225,8 @@ class HttpServer : public QObject, public QQmlParserStatus
         int m_port;
 
 #ifdef HYELICHT_BUILD_ONBOARD
-        QHttpEngine::QObjectHandler *m_handler;
-        QHttpEngine::Server *m_server;
+        QPointer<QTcpServer> m_tcpServer;
+        QPointer<QHttpServer> m_httpServer;
 #endif
 
         QPointer<ShelfModel> m_model;

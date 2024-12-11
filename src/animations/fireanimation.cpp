@@ -1,6 +1,6 @@
 /*
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
- * SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+ * SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
  */
 
 #include "fireanimation.h"
@@ -44,7 +44,7 @@ FireAnimation::FireAnimation(QObject *parent)
             }
 
             m_ledStrip->show();
-            emit frameComplete();
+            Q_EMIT frameComplete();
 
             blockSignals(true);
             setUpdateInterval(m_distInterval(m_e));

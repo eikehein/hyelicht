@@ -1,10 +1,10 @@
 /*
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
- * SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+ * SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
  */
 
-import QtQuick 2.15
-import QtGraphicalEffects 1.15
+import QtQuick
+import QtQuick.Effects
 
 //! RGB color wheel UI item
 /*!
@@ -27,46 +27,8 @@ Item {
 
         visible: false
 
-        vertexShader: "
-            uniform highp mat4 qt_Matrix;
-            attribute highp vec4 qt_Vertex;
-            attribute highp vec2 qt_MultiTexCoord0;
-            varying highp vec2 coord;
-
-            void main() {
-                coord = qt_MultiTexCoord0;
-                gl_Position = qt_Matrix * qt_Vertex;
-            }"
-
-        fragmentShader: "
-            // Use high precision if available.
-            #ifdef GL_FRAGMENT_PRECISION_HIGH
-            precision highp float;
-            #endif
-
-            varying highp vec2 coord;
-            #define TWO_PI 6.28318530718
-
-            // Convert from HSV to RGB with some cubic smoothing for
-            // a nicer, more perceptual appearance.
-            vec3 hsv2rgb(in vec3 c) {
-                vec3 rgb = clamp(abs(mod(c.x * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
-                rgb = rgb * rgb * (3.0 - 2.0 * rgb);
-                return c.z * mix(vec3(1.0), rgb, c.y);
-            }
-
-            void main() {
-                vec2 st = coord;
-                vec3 color = vec3(0.0);
-
-                // Convert cartesian to polar coordinates.
-                vec2 toCenter = vec2(0.5) - st;
-                float angle = atan(toCenter.y, toCenter.x);
-                float radius = length(toCenter) * 2.0;
-
-                color = hsv2rgb(vec3((angle / TWO_PI) + 0.5, radius, 1.0));
-                gl_FragColor = vec4(color, 1.0);
-            }"
+        vertexShader: "qrc:///shaders/ColorWheel.vert.qsb"
+        fragmentShader: "qrc:///shaders/ColorWheel.frag.qsb"
     }
 
     Rectangle {
@@ -78,20 +40,25 @@ Item {
 
         color: Theme.windowForegroundColor
         radius: width / 2
+
+        layer.enabled: true
+        antialiasing: true
     }
 
-    OpacityMask {
+    MultiEffect {
         anchors.fill: wheel
 
-        source: wheel
+        maskEnabled: true
         maskSource: mask
 
-        cached: true
+        maskThresholdMin: 0.5
+        maskSpreadAtMin: 1.0
+
+        source: wheel
     }
 
     Rectangle {
         id: picker
-
 
         readonly property point pos: {
             // Convert from the current color to polar and then to

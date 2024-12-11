@@ -1,6 +1,6 @@
 /*
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
- * SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+ * SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
  */
 
 #include "debug_hyelichtctl.h"
@@ -15,6 +15,7 @@
 #include <QCoreApplication>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QMetaType>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QRegularExpression>
@@ -73,17 +74,17 @@ int main(int argc, char *argv[])
         qCCritical(HYELICHTCTL) << i18n("No command specified.");
         return 1;
     }
-    
+
     QScopedPointer<QNetworkAccessManager> networkAccessManager {new QNetworkAccessManager};
-    
+
     const QString &urlTemplate {QStringLiteral("http://%1:%2/v1/%3").arg(parser.value(serverOption))
         .arg(parser.value(portOption))};
-    
+
     auto exitWithError = [=](const QString &error) {
         qCCritical(HYELICHTCTL) << error;
         QMetaObject::invokeMethod(qApp, [=]() { qApp->exit(1); }, Qt::QueuedConnection);
     };
-    
+
     auto handleReply = [=](QNetworkReply *reply) {
         return [=]() {
             if (reply->error()) {
@@ -98,9 +99,9 @@ int main(int argc, char *argv[])
                 exitWithError(i18n("Error parsing JSON response from server: %1", reply->errorString()));
                 return;
             }
-            
+
             QTextStream out {stdout};
-            
+
             if (json) {
                 out << response.toJson(QJsonDocument::Indented);
             } else {
@@ -111,25 +112,25 @@ int main(int argc, char *argv[])
                         return a.length() < b.length();
                     }
                 )};
-                
+
                 for (const QString &key : keys) {
-                    out << QString("%1 = %2")
+                    out << QStringLiteral("%1 = %2")
                         .arg(key.leftJustified(longestKey.length()))
                         .arg(response.object().value(key).toVariant().toString())
                         << Qt::endl;
                 }
             }
-            
+
             QMetaObject::invokeMethod(qApp, &QCoreApplication::quit, Qt::QueuedConnection);
         };
     };
-    
+
     auto get = [=, &networkAccessManager](const QString &resource) {
         const QUrl url {urlTemplate.arg(resource)};
         QNetworkReply *reply {networkAccessManager->get(QNetworkRequest(url))};
         QObject::connect(reply, &QNetworkReply::finished, qApp, handleReply(reply));
     };
-    
+
     auto put = [=, &networkAccessManager](const QString &resource, const QString &prop,
         const QVariant &value) {
         QJsonObject body {{prop, QJsonValue::fromVariant(value)}};
@@ -152,7 +153,7 @@ int main(int argc, char *argv[])
         } else if (args.length() == 2) {
             const QString &value {args.at(1)};
 
-            if (QVariant(value).canConvert(QMetaType::Bool)) {
+            if (QVariant(value).canConvert<bool>()) {
                 put(QStringLiteral("shelf/%1").arg(prop), prop, value);
             } else {
                 exitWithError(i18n("Not a valid argument: %1", value.trimmed()));
@@ -200,25 +201,25 @@ int main(int argc, char *argv[])
             if (color.isValid()) {
                 put(QStringLiteral("shelf/averageColor"), QStringLiteral("averageColor"), color);
             } else if (ok) {
-                get(QString("squares/%1/averageColor").arg(QString::number(index)));
+                get(QLatin1StringView("squares/%1/averageColor").arg(QString::number(index)));
             } else {
                 exitWithError(i18n("Not a valid color or square index: %1", value.trimmed()));
             }
         } else if (args.length() == 3) {
             bool ok {true};
             const int index {QVariant(args.at(1)).toInt(&ok)};
-            
+
             if (!ok) {
                 exitWithError(i18n("Not a square index: %1", args.at(1).trimmed()));
             }
-            
+
             const QColor &color {args.at(2)};
-            
+
             if (!color.isValid()) {
                 exitWithError(i18n("Not a valid color: %1", args.at(2).trimmed()));
             }
-            
-            put(QString("squares/%1/averageColor").arg(QString::number(index)),
+
+            put(QLatin1StringView("squares/%1/averageColor").arg(QString::number(index)),
                 QStringLiteral("averageColor"), color);
         } else {
             exitWithError(i18n("Too many arguments."));

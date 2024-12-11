@@ -1,11 +1,11 @@
 /*
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
- * SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+ * SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
  */
 
-import QtQuick 2.15
-import QtQuick.Controls 2.15
-import QtGraphicalEffects 1.15
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Effects
 
 //! Themed button UI item
 /*!
@@ -28,7 +28,7 @@ AbstractButton {
 
     onClicked: glowAnimation.restart()
 
-    RectangularGlow {
+    MultiEffect {
         id: glowEffect
 
         anchors.fill: background
@@ -37,10 +37,12 @@ AbstractButton {
 
         opacity: 0
 
-        color: Theme.activeButtonColor
-        spread: 1.0
-        glowRadius: 0
-        cornerRadius: background.radius + glowRadius
+        colorization: 1.0
+        colorizationColor: Theme.activeButtonColor
+
+        blurEnabled: true
+        blurMax: 64
+        blur: 1.0
 
         ParallelAnimation {
             id: glowAnimation
@@ -50,9 +52,9 @@ AbstractButton {
 
             NumberAnimation {
                 target: glowEffect
-                property: "glowRadius"
+                property: "blur"
                 from: 0
-                to: Theme.even(colorButton.width * 0.12)
+                to: 0.6
                 duration: 600
                 easing.type: Easing.OutCubic
             }
@@ -65,6 +67,8 @@ AbstractButton {
                 easing.type: Easing.OutCubic
             }
         }
+
+        source: background
     }
 
     Rectangle {
@@ -89,6 +93,8 @@ AbstractButton {
 
         sourceSize.width: width
         sourceSize.height: height
+
+        layer.enabled: true
     }
 
     Rectangle {
@@ -101,13 +107,18 @@ AbstractButton {
         color: Theme.windowBackgroundColor
     }
 
-    OpacityMask {
+    MultiEffect {
         id: mask
 
         anchors.fill: icon
 
-        source: invertedIcon
+        maskEnabled: true
         maskSource: icon
+
+        maskThresholdMin: 0.5
+        maskSpreadAtMin: 1.0
+
+        source: invertedIcon
     }
 
     states: [

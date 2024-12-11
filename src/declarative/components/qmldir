@@ -1,6 +1,0 @@
-# SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-# SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
-
-# Mark up the singletons.
-singleton Onboard 1.0 Onboard.qml
-singleton Theme 1.0 Theme.qml

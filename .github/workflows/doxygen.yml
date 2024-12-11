@@ -1,66 +1,68 @@
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-# SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+# SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
 
 name: Documentation
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 env:
   BUILD_TYPE: Release
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # Current base for KDE Neon
     container:
-      image: kdeneon/plasma:user
+      image: invent-registry.kde.org/neon/docker-images/plasma:developer
       options: --user root
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential git cmake gettext
-        sudo apt-get install -y qtbase5-dev qtdeclarative5-dev qtquickcontrols2-5-dev libqt5remoteobjects5-dev libkf5config-dev
-        sudo apt-get install -y libkf5coreaddons-dev libkf5i18n-dev extra-cmake-modules
-        sudo apt-get install -y graphviz doxyqml
-        sudo apt-get install -y rsync
+      - name: Install dependencies
+        run: |
+          apt-get update
+          apt-get install -y build-essential git cmake gettext
+          apt-get install -y qt6-base-dev qt6-declarative-dev qt6-httpserver-dev qt6-remoteobjects-dev \
+            qt6-serialport-dev qt6-shadertools-dev qt6-websockets-dev
+          apt-get install -y extra-cmake-modules kf6-kconfig-dev kf6-kcoreaddons-dev kf6-ki18n-dev
+          apt-get install -y graphviz doxygen doxyqml
 
-    - name: Install build dependencies for Doxygen
-      run: |
-        sudo sed -i '/deb-src/s/^# //' /etc/apt/sources.list
-        sudo apt-get update -y
-        sudo apt-get build-dep -y doxygen
+      - name: Configure
+        run: |
+          cmake \
+          -B build \
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+          -DBUILD_ONBOARD=false \
+          -DBUILD_CLI=false \
+          -DBUILD_DOCS=true
 
-    - name: Install newer Doxygen
-      run: |
-        ln -s /usr/bin/dot /usr/sbin/dot
-        cd ..
-        git clone https://github.com/doxygen/doxygen.git
-        cd doxygen
-        mkdir build
-        cd build
-        cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=/usr ..
-        make
-        sudo make install
-        cd ../../hyelicht
+      - name: Build
+        run: cmake --build build --config ${{env.BUILD_TYPE}}
 
-    - name: Configure Hyelicht
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_ONBOARD=false -DBUILD_CLI=false -DBUILD_DOCS=true
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/docs/html/
 
-    - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+  deploy:
+    needs: build
 
-    - name: Symlink output dir for deployment
-      run: ln -s ${{github.workspace}}/build/docs/html docs/html
+    runs-on: ubuntu-latest
 
-    - name: Deploy documentation to GitHub Pages
-      uses: JamesIves/github-pages-deploy-action@4.1.7
-      with:
-        branch: gh-pages
-        folder: docs/html
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4

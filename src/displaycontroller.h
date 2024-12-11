@@ -12,7 +12,7 @@
 
 #ifdef HYELICHT_BUILD_ONBOARD
 #include <QSerialPort>
-#endif 
+#endif
 
 #include <QTimer>
 
@@ -90,7 +90,7 @@ class DisplayController : public QObject, public QQmlParserStatus
     * \sa setOn
     * \sa onChanged
     * \sa brightness
-    */   
+    */
     Q_PROPERTY(bool on READ on WRITE setOn NOTIFY onChanged)
 
     //! Display brightness level while on.
@@ -104,7 +104,7 @@ class DisplayController : public QObject, public QQmlParserStatus
     * \sa setBrightness
     * \sa brightnessChanged
     * \sa on
-    */  
+    */
     Q_PROPERTY(qreal brightness READ brightness WRITE setBrightness NOTIFY brightnessChanged)
 
     //! Wait time in seconds after which the display is turned off.
@@ -116,7 +116,7 @@ class DisplayController : public QObject, public QQmlParserStatus
     * \sa setIdleTimeout
     * \sa idleTimeoutChanged
     * \sa resetIdleTimeout
-    */  
+    */
     Q_PROPERTY(int idleTimeout READ idleTimeout WRITE setIdleTimeout NOTIFY idleTimeoutChanged)
 
     //! Duration in milliseconds for an animated fade between the two ends of the brightness range.
@@ -131,7 +131,7 @@ class DisplayController : public QObject, public QQmlParserStatus
     * \sa setFadeDuration
     * \sa fadeDurationChanged
     * \sa fadeEasing
-    */     
+    */
     Q_PROPERTY(int fadeDuration READ fadeDuration WRITE setFadeDuration NOTIFY fadeDurationChanged)
 
     //! Easing curve used when fading between display brightness levels.
@@ -141,7 +141,7 @@ class DisplayController : public QObject, public QQmlParserStatus
     * \sa setFadeEasing
     * \sa fadeEasingChanged
     * \sa fadeDuration
-    */     
+    */
     Q_PROPERTY(QEasingCurve fadeEasing READ fadeEasing WRITE setFadeEasing NOTIFY fadeEasingChanged)
 
     public:
@@ -158,7 +158,7 @@ class DisplayController : public QObject, public QQmlParserStatus
         * \sa enabled (property)
         * \sa setEnabled
         * \sa enabledChanged
-        */ 
+        */
         bool enabled() const;
 
         //! Turn serial communication with the PWM generator MCU on or off.
@@ -233,7 +233,7 @@ class DisplayController : public QObject, public QQmlParserStatus
         * \sa brightness
         */
         void setOn(bool on);
-        
+
         //! The display brightness level while on.
         /*!
         * This property is independent of the value of the property \ref on.
@@ -328,7 +328,7 @@ class DisplayController : public QObject, public QQmlParserStatus
         * \sa fadeDuration
         */
         void setFadeEasing(const QEasingCurve &fadeEasing);
-        
+
         //! Implements the \c QQmlParserStatus interface.
         void classBegin() override;
         //! Implements the \c QQmlParserStatus interface.
@@ -362,21 +362,21 @@ class DisplayController : public QObject, public QQmlParserStatus
         * \sa setOn
         */
         void onChanged() const;
-        
+
         //! The display brightness level while on has changed.
         /*!
         * \sa brightness
         * \sa setBrightness
         */
         void brightnessChanged() const;
-        
+
         //! The wait time in seconds after which the display is turned off has changed.
         /*!
         * \sa idleTimeout
         * \sa setIdleTimeout
         */
         void idleTimeoutChanged() const;
-        
+
         //! The duration in milliseconds for an animated fade between the two ends of the brightness range has changed.
         /*!
         * \sa fadeDuration
@@ -390,7 +390,7 @@ class DisplayController : public QObject, public QQmlParserStatus
         * \sa setFadeEasing
         */
         void fadeEasingChanged() const;
-        
+
     private:
         void connectPwmGenerator();
         void disconnectPwmGenerator();
@@ -404,7 +404,7 @@ class DisplayController : public QObject, public QQmlParserStatus
 #endif
 
         bool m_on;
-        
+
         qreal m_brightness;
         qreal m_pendingBrightness;
 

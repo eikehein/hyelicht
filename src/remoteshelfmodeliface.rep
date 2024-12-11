@@ -1,0 +1,26 @@
+/*
+ * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+ * SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
+ */
+
+#include <QColor>
+
+class RemoteShelfModelIface
+{
+    PROP(bool enabled READWRITE)
+
+    PROP(int rows READWRITE)
+    PROP(int columns READWRITE)
+    PROP(int density READWRITE)
+    PROP(int wallThickness READWRITE)
+
+    PROP(qreal brightness READWRITE)
+    PROP(bool animateBrightnessTransitions READWRITE)
+
+    PROP(QColor averageColor READWRITE)
+    PROP(bool animateAverageColorTransitions READWRITE)
+
+    PROP(int transitionDuration READWRITE)
+
+    PROP(bool animating READWRITE)
+};

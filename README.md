@@ -150,22 +150,21 @@ The reference hardware used in the project is an Android Nano 3.0 (AVR ATmega328
 #### General build dependencies
 
 - C++17-supporting C++ compiler
-- CMake v3.16+
-- Qt v5.15+ modules QtCore, QtNetwork, QtQML, QtQuick, QtRemoteObjects
-- KDE Frameworks 5 v5.78+ modules Extra CMake Modules/ECM, KCoreAddons, KConfig, KI18n from
+- CMake v3.25+
+- Qt v6.8.0+ modules QtCore, QtNetwork, QtQML, QtQuick, QtRemoteObjects, QtShaderTools
+- KDE Frameworks 6 v6.8.0+ modules Extra CMake Modules/ECM, KCoreAddons, KConfig, KI18n
 - Linux headers (for SPI)
 
 #### Optional build dependencies
 
 - For [onboard](#user-options) builds:
-    - Qt v5.15+ module QtSerialPort
+    - Qt v6.8.0+ modules QHttpServer, QtSerialPort
     - QHttpEngine v1.0.1+
 - For [Android](#android) builds:
-    - Qt v5.15+ module QtAndroidExtras
-    - Android v30+ SDK+NDK (see below)
+    - Android SDK v34, NDK r26d (see below)
 - For [documentation](#developer-options) builds:
-    - Doxygen v1.8.8+
-    - Doxyqml
+    - Doxygen v1.9.8+
+    - Doxyqml v0.3.0+
 
 A convenient way to access a complete Android+Qt+KDE SDK is via the [KDE Android Docker image](https://community.kde.org/Android/Environment_via_Container).
 
@@ -197,9 +196,9 @@ See below for available build options and their default values.
 
 #### Android
 
-Building for Android is easy using the [KDE Android Docker image](https://community.kde.org/Android/Environment_via_Container).
+Building for Android is easy using the [KDE Craft Android Docker image](https://develop.kde.org/docs/packaging/android/building_applications/) and the included Craft blueprint at `support/craft_blueprint/hyelicht.py`.
 
-See the `support/kde_android_docker_build.sh` build script and its embedded comments for specific instructions.
+Check out the GitHub workflow for Android at `.github/workflows/android_client.yml` for how to integrate the blueprint with the Craft setup suggested in KDE's documentation.
 
 #### Doxygen
 To generate [source code documentation](#source-code) using Doxygen during a build, enable the `BUILD_DOCS` [build option](#build-options).

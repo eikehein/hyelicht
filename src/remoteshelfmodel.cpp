@@ -1,10 +1,11 @@
 /*
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
- * SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+ * SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
  */
 
 #include "remoteshelfmodel.h"
 #include "debug_remoting.h"
+#include "rep_remoteshelfmodeliface_merged.h"
 
 #include <KLocalizedString>
 
@@ -16,10 +17,10 @@
 RemoteShelfModel::RemoteShelfModel(QObject *parent)
     : QIdentityProxyModel(parent)
     , m_enabled {true}
-    , m_serverAddress {QStringLiteral("tcp://192.168.178.129:8042")}
+    , m_serverAddress {QStringLiteral("192.168.178.129:8042")}
     , m_remotingServer {nullptr}
     , m_remoteModel {nullptr}
-    , m_remoteModelApi {nullptr}
+    , m_remoteModelIface {nullptr}
     , m_createdByQml {false}
     , m_complete {false}
 {
@@ -31,7 +32,7 @@ RemoteShelfModel::~RemoteShelfModel()
 
 bool RemoteShelfModel::connected() const
 {
-    return m_remoteModelApi && (m_remoteModelApi->state() == QRemoteObjectReplica::Valid);
+    return m_remoteModelIface && (m_remoteModelIface->state() == QRemoteObjectReplica::Valid);
 }
 
 QUrl RemoteShelfModel::serverAddress() const
@@ -48,206 +49,206 @@ void RemoteShelfModel::setServerAddress(const QUrl &url)
             updateSource();
         }
 
-        emit serverAddressChanged();
+        Q_EMIT serverAddressChanged();
     }
 }
 
 bool RemoteShelfModel::enabled() const
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return false;
     }
-    
-    return m_remoteModelApi->property("enabled").toBool();
+
+    return m_remoteModelIface->enabled();
 }
 
 void RemoteShelfModel::setEnabled(bool enabled)
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return;
     }
 
-    m_remoteModelApi->setProperty("enabled", enabled);
+    m_remoteModelIface->setEnabled(enabled);
 }
 
 int RemoteShelfModel::rows() const
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return 4;
     }
-    
-    return m_remoteModelApi->property("rows").toInt();
+
+    return m_remoteModelIface->rows();
 }
 
 void RemoteShelfModel::setRows(int rows)
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return;
     }
 
-    m_remoteModelApi->setProperty("rows", rows);
+    m_remoteModelIface->setRows(rows);
 }
 
 int RemoteShelfModel::columns() const
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return 5;
     }
-    
-    return m_remoteModelApi->property("columns").toInt();
+
+    return m_remoteModelIface->columns();
 }
 
 void RemoteShelfModel::setColumns(int columns)
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return;
     }
 
-    m_remoteModelApi->setProperty("columns", columns);
+    m_remoteModelIface->setColumns(columns);
 }
 
 int RemoteShelfModel::density() const
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return 20;
     }
-    
-    return m_remoteModelApi->property("density").toInt();
+
+    return m_remoteModelIface->density();
 }
 
 void RemoteShelfModel::setDensity(int density)
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return;
     }
 
-    m_remoteModelApi->setProperty("density", density);
+    m_remoteModelIface->setDensity(density);
 }
 
 int RemoteShelfModel::wallThickness() const
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return 1;
     }
-    
-    return m_remoteModelApi->property("wallThickness").toInt();
+
+    return m_remoteModelIface->wallThickness();
 }
 
 void RemoteShelfModel::setWallThickness(int thickness)
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return;
     }
 
-    m_remoteModelApi->setProperty("wallThickness", thickness);
+    m_remoteModelIface->setWallThickness(thickness);
 }
 
 qreal RemoteShelfModel::brightness() const
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return 1.0;
     }
-    
-    return m_remoteModelApi->property("brightness").toReal();
+
+    return m_remoteModelIface->brightness();
 }
 
 void RemoteShelfModel::setBrightness(qreal brightness)
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return;
     }
 
-    m_remoteModelApi->setProperty("brightness", brightness);
+    m_remoteModelIface->setBrightness(brightness);
 }
 
 bool RemoteShelfModel::animateBrightnessTransitions() const
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return true;
     }
-    
-    return m_remoteModelApi->property("animatedBrightnessTransitions").toBool();
+
+    return m_remoteModelIface->animateBrightnessTransitions();
 }
 
 void RemoteShelfModel::setAnimateBrightnessTransitions(bool animate)
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return;
     }
 
-    m_remoteModelApi->setProperty("animatedBrightnessTransitions", animate); 
+    m_remoteModelIface->setAnimateBrightnessTransitions(animate);
 }
 
 QColor RemoteShelfModel::averageColor() const
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return QColor(QStringLiteral("white"));
     }
-    
-    return m_remoteModelApi->property("averageColor").value<QColor>();
+
+    return m_remoteModelIface->property("averageColor").value<QColor>();
 }
 
 void RemoteShelfModel::setAverageColor(const QColor &color)
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return;
     }
 
-    m_remoteModelApi->setProperty("averageColor", color);
+    m_remoteModelIface->setProperty("averageColor", color);
 }
 
 bool RemoteShelfModel::animateAverageColorTransitions() const
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return true;
     }
-    
-    return m_remoteModelApi->property("animateAverageColorTransitions").toBool();
+
+    return m_remoteModelIface->animateAverageColorTransitions();
 }
 
 void RemoteShelfModel::setAnimateAverageColorTransitions(bool animate)
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return;
     }
 
-    m_remoteModelApi->setProperty("animateAverageColorTransitions", animate);
+    m_remoteModelIface->setAnimateAverageColorTransitions(animate);
 }
 
 bool RemoteShelfModel::animating() const
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return false;
     }
-    
-    return m_remoteModelApi->property("animating").toBool();
+
+    return m_remoteModelIface->animating();
 }
 
 void RemoteShelfModel::setAnimating(bool animating)
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return;
     }
 
-    m_remoteModelApi->setProperty("animating", animating);
+    m_remoteModelIface->setAnimating(animating);
 }
 
 int RemoteShelfModel::transitionDuration() const
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return 400;
     }
-    
-    return m_remoteModelApi->property("transitionDuration").toInt();
+
+    return m_remoteModelIface->transitionDuration();
 }
 
 void RemoteShelfModel::setTransitionDuration(int duration)
 {
-    if (!m_remoteModelApi || !m_remoteModelApi->isInitialized()) {
+    if (!m_remoteModelIface || !m_remoteModelIface->isInitialized()) {
         return;
     }
 
-    m_remoteModelApi->setProperty("transitionDuration", duration);  
+    m_remoteModelIface->setTransitionDuration(duration);
 }
 
 void RemoteShelfModel::classBegin()
@@ -270,33 +271,33 @@ void RemoteShelfModel::updateSource()
         delete m_remoteModel;
         m_remoteModel = nullptr;
 
-        delete m_remoteModelApi;
-        m_remoteModelApi = nullptr;
+        delete m_remoteModelIface;
+        m_remoteModelIface = nullptr;
 
         delete m_remotingServer;
         m_remotingServer = nullptr;
 
-        emit connectedChanged();
+        Q_EMIT connectedChanged();
 
-        emit enabledChanged();
+        Q_EMIT enabledChanged();
 
-        emit rowsChanged();
-        emit columnsChanged();
-        emit densityChanged();
-        emit wallThicknessChanged();
+        Q_EMIT rowsChanged();
+        Q_EMIT columnsChanged();
+        Q_EMIT densityChanged();
+        Q_EMIT wallThicknessChanged();
 
-        emit shelfRowsChanged();
-        emit shelfColumnsChanged();
+        Q_EMIT shelfRowsChanged();
+        Q_EMIT shelfColumnsChanged();
 
-        emit brightnessChanged();
-        emit animateBrightnessTransitionsChanged();
+        Q_EMIT brightnessChanged();
+        Q_EMIT animateBrightnessTransitionsChanged();
 
-        emit averageColorChanged();
-        emit animateAverageColorTransitionsChanged();
+        Q_EMIT averageColorChanged();
+        Q_EMIT animateAverageColorTransitionsChanged();
 
-        emit transitionDurationChanged();
+        Q_EMIT transitionDurationChanged();
 
-        emit animatingChanged();
+        Q_EMIT animatingChanged();
     }
 
     if (!m_serverAddress.isValid()) {
@@ -325,50 +326,50 @@ void RemoteShelfModel::updateSource()
 
         setSourceModel(m_remoteModel);
 
-        m_remoteModelApi =  m_remotingServer->acquireDynamic(QStringLiteral("shelfModelApi"));
+        m_remoteModelIface =  m_remotingServer->acquire<RemoteShelfModelIfaceReplica>();
 
-        if (!m_remoteModelApi) {
+        if (!m_remoteModelIface) {
             qCCritical(HYELICHT_REMOTING) << i18n("Failed to acquire shelf API from the remoting API server: %1",
                 m_remotingServer->lastError());
             return;
         }
 
-        emit connectedChanged();
+        Q_EMIT connectedChanged();
 
-        QObject::connect(m_remoteModelApi, &QRemoteObjectReplica::stateChanged,
+        QObject::connect(m_remoteModelIface, &QRemoteObjectReplica::stateChanged,
             this, &RemoteShelfModel::connectedChanged);
 
         qCInfo(HYELICHT_REMOTING) << i18n("Connected to remoting API server at: %1",
             m_serverAddress.toString());
 
-        QObject::connect(m_remoteModelApi, &QRemoteObjectReplica::initialized, this,
+        QObject::connect(m_remoteModelIface, &QRemoteObjectReplica::initialized, this,
             [=]() {
-                QObject::connect(m_remoteModelApi, SIGNAL(enabledChanged()),
+                QObject::connect(m_remoteModelIface, SIGNAL(enabledChanged(bool)),
                     this, SIGNAL(enabledChanged()));
 
-                QObject::connect(m_remoteModelApi, SIGNAL(rowsChanged()),
+                QObject::connect(m_remoteModelIface, SIGNAL(rowsChanged(int)),
                     this, SIGNAL(rowsChanged()));
-                QObject::connect(m_remoteModelApi, SIGNAL(columnsChanged()),
+                QObject::connect(m_remoteModelIface, SIGNAL(columnsChanged(int)),
                     this, SIGNAL(columnsChanged()));
-                QObject::connect(m_remoteModelApi, SIGNAL(densityChanged()),
+                QObject::connect(m_remoteModelIface, SIGNAL(densityChanged(int)),
                     this, SIGNAL(densityChanged()));
-                QObject::connect(m_remoteModelApi, SIGNAL(wallThicknessChanged()),
+                QObject::connect(m_remoteModelIface, SIGNAL(wallThicknessChanged(int)),
                     this, SIGNAL(wallThicknessChanged()));
 
-                QObject::connect(m_remoteModelApi, SIGNAL(brightnessChanged()),
+                QObject::connect(m_remoteModelIface, SIGNAL(brightnessChanged(qreal)),
                     this, SIGNAL(brightnessChanged()));
-                QObject::connect(m_remoteModelApi, SIGNAL(animateBrightnessTransitionsChanged()),
+                QObject::connect(m_remoteModelIface, SIGNAL(animateBrightnessTransitionsChanged(bool)),
                     this, SIGNAL(animateBrightnessTransitionsChanged()));
 
-                QObject::connect(m_remoteModelApi, SIGNAL(averageColorChanged()),
+                QObject::connect(m_remoteModelIface, SIGNAL(averageColorChanged(QColor)),
                     this, SIGNAL(averageColorChanged()));
-                QObject::connect(m_remoteModelApi, SIGNAL(animateAverageColorTransitionsChanged()),
+                QObject::connect(m_remoteModelIface, SIGNAL(animateAverageColorTransitionsChanged(bool)),
                     this, SIGNAL(animateAverageColorTransitionsChanged()));
 
-                QObject::connect(m_remoteModelApi, SIGNAL(transitionDurationChanged()),
+                QObject::connect(m_remoteModelIface, SIGNAL(transitionDurationChanged(int)),
                     this, SIGNAL(transitionDurationChanged()));
 
-                QObject::connect(m_remoteModelApi, SIGNAL(animatingChanged()),
+                QObject::connect(m_remoteModelIface, SIGNAL(animatingChanged(bool)),
                     this, SIGNAL(animatingChanged()));
             }
         );

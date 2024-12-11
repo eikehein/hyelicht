@@ -1,7 +1,6 @@
 /*
- * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR
- * LicenseRef-KDE-Accepted-GPL SPDX-FileCopyrightText: 2021-2022 Eike Hein
- * <sho@eikehein.com>
+ * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+ * SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
  */
 
 #pragma once
@@ -10,8 +9,9 @@
 #include <QQmlParserStatus>
 #include <QUrl>
 
+class RemoteShelfModelIfaceReplica;
+
 class QAbstractItemModelReplica;
-class QRemoteObjectDynamicReplica;
 class QRemoteObjectNode;
 
 //! Client for the remoting server provided by ShelfModel
@@ -20,7 +20,7 @@ class QRemoteObjectNode;
  *
  * Connects to the remoting server provided by a ShelfModel instance and makes
  * most of the ShelfModel API available out of process or over the network.
- * This allows running the onboard GUI out of process and also enables the 
+ * This allows running the onboard GUI out of process and also enables the
  * PC/Android offboard instances of the application.
  *
  * For detailed documentation of the mirrored API please see ShelfModel.
@@ -68,13 +68,13 @@ class RemoteShelfModel : public QIdentityProxyModel, public QQmlParserStatus
     Q_PROPERTY(int density READ density WRITE setDensity NOTIFY densityChanged)
     //! \sa ShelfModel::wallThickness
     Q_PROPERTY(int wallThickness READ wallThickness WRITE setWallThickness NOTIFY wallThicknessChanged)
-    
+
     //! \sa ShelfModel::brightness
     Q_PROPERTY(qreal brightness READ brightness WRITE setBrightness NOTIFY brightnessChanged)
     //! \sa ShelfModel::animateBrightnessTransitions
     Q_PROPERTY(bool animateBrightnessTransitions READ animateBrightnessTransitions
         WRITE setAnimateBrightnessTransitions NOTIFY animateBrightnessTransitionsChanged)
-    
+
     //! \sa ShelfModel::averageColor
     Q_PROPERTY(QColor averageColor READ averageColor WRITE setAverageColor NOTIFY averageColorChanged)
     //! \sa ShelfModel::animateAverageColorTransitions
@@ -83,7 +83,7 @@ class RemoteShelfModel : public QIdentityProxyModel, public QQmlParserStatus
 
     //! \sa ShelfModel::transitionDuration
     Q_PROPERTY(int transitionDuration READ transitionDuration WRITE setTransitionDuration NOTIFY transitionDurationChanged)
-    
+
     //! \sa ShelfModel::animating
     Q_PROPERTY(bool animating READ animating WRITE setAnimating NOTIFY animatingChanged)
 
@@ -233,7 +233,7 @@ class RemoteShelfModel : public QIdentityProxyModel, public QQmlParserStatus
         QUrl m_serverAddress;
         QRemoteObjectNode *m_remotingServer;
         QAbstractItemModelReplica *m_remoteModel;
-        QRemoteObjectDynamicReplica *m_remoteModelApi;
+        RemoteShelfModelIfaceReplica *m_remoteModelIface;
 
         bool m_createdByQml;
         bool m_complete;

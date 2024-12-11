@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-  SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+  SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
 -->
 <component type="desktop-application">
     <id>@HYELICHT_DOMAIN_NAME@</id>
@@ -18,9 +18,9 @@
         <category>RemoteAccess</category>
     </categories>
     <url type="homepage">https://www.hyerimandeike.com/</url>
-    <translation type="gettext">@PROJECT_NAME@</translation>
+    <translation type="gettext">@PROJECT_LOWERCASE_NAME@</translation>
     <provides>
-        <binary>@PROJECT_NAME@</binary>
+        <binary>@PROJECT_LOWERCASE_NAME@</binary>
     </provides>
     <launchable type="desktop-id">@HYELICHT_DOMAIN_NAME@.desktop</launchable>
 </component>

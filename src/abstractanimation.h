@@ -1,6 +1,6 @@
 /*
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
- * SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+ * SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
  */
 
 #pragma once
@@ -8,7 +8,7 @@
 #include <QTimeLine>
 #include <QPointer>
 
-class LedStrip;
+#include "ledstrip.h"
 
 //! Abstract base class for LED strip animations operating on LedStrip
 /*!

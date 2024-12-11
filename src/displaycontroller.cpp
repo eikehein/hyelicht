@@ -1,6 +1,6 @@
 /*
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
- * SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+ * SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
  */
 
 #include "displaycontroller.h"
@@ -28,7 +28,7 @@ DisplayController::DisplayController(QObject *parent)
 
     /* What follows are the QSerialPort defaults, which at the time of
        writing are what we want:
-    
+
     m_serialPort.setDataBits(QSerialPort::Data8);
     m_serialPort.setParity(QSerialPort::NoParity);
     m_serialPort.setStopBits(QSerialPort::OneStop);
@@ -42,12 +42,12 @@ DisplayController::DisplayController(QObject *parent)
         [=]() {
             if (m_brightness != m_pendingBrightness) {
                 m_brightness = m_pendingBrightness;
-                emit brightnessChanged();
+                Q_EMIT brightnessChanged();
             }
 
             if (m_fadeAnimation.endValue() == 0) {
                 m_on = false;
-                emit onChanged();
+                Q_EMIT onChanged();
 
                 m_idleTimeoutTimer.stop();
             }
@@ -74,7 +74,7 @@ DisplayController::DisplayController(QObject *parent)
 
     m_idleTimeoutTimer.setInterval(1000 * 20);
     m_idleTimeoutTimer.setSingleShot(true);
-    
+
     QObject::connect(&m_idleTimeoutTimer, &QTimer::timeout, this,
         [=]() {
             setOn(false);
@@ -105,7 +105,7 @@ void DisplayController::setEnabled(bool enabled)
             }
         }
 
-        emit enabledChanged();
+        Q_EMIT enabledChanged();
     }
 }
 
@@ -130,7 +130,7 @@ void DisplayController::setSerialPortName(const QString &name)
             }
         }
 
-        emit serialPortNameChanged();
+        Q_EMIT serialPortNameChanged();
     }
 #else
     Q_UNUSED(name)
@@ -158,7 +158,7 @@ void DisplayController::setBaudRate(qint32 rate)
             }
         }
 
-        emit baudRateChanged();
+        Q_EMIT baudRateChanged();
     }
 #else
     Q_UNUSED(rate)
@@ -177,14 +177,14 @@ void DisplayController::setOn(bool on)
             if (m_idleTimeoutTimer.interval() > 0) {
                 m_idleTimeoutTimer.start();
             }
-            
+
             if (m_fadeAnimation.duration() > 0 && m_enabled) {
                 // If we're fading in, update the prop. Otherwise,
                 // the fade will update it whenever we're fading to
                 // 0.
                 if (on) {
                     m_on = on;
-                    emit onChanged();         
+                    Q_EMIT onChanged();
                 }
 
                 fade(on ? 0.0 : m_brightness, on ? m_brightness : 0.0);
@@ -194,7 +194,7 @@ void DisplayController::setOn(bool on)
         }
 
         m_on = on;
-        emit onChanged();
+        Q_EMIT onChanged();
 
         if (m_on && m_idleTimeoutTimer.interval() > 0) {
             m_idleTimeoutTimer.start();
@@ -220,7 +220,7 @@ void DisplayController::setBrightness(qreal brightness)
         }
 
         m_brightness = brightness;
-        emit brightnessChanged();
+        Q_EMIT brightnessChanged();
     }
 }
 
@@ -233,7 +233,7 @@ void DisplayController::setIdleTimeout(int timeout)
 {
     if (m_idleTimeoutTimer.interval() / 1000 != timeout) {
         m_idleTimeoutTimer.setInterval(timeout * 1000);
-        
+
         if (!m_createdByQML || m_complete) {
             if (m_idleTimeoutTimer.interval() == 0) {
                 m_idleTimeoutTimer.stop();
@@ -242,8 +242,8 @@ void DisplayController::setIdleTimeout(int timeout)
                 m_idleTimeoutTimer.start();
             }
         }
-        
-        emit idleTimeoutChanged();
+
+        Q_EMIT idleTimeoutChanged();
     }
 }
 
@@ -252,7 +252,7 @@ void DisplayController::resetIdleTimeout()
     if (!m_on || m_idleTimeoutTimer.interval() == 0) {
         return;
     }
-    
+
     m_idleTimeoutTimer.start();
 }
 
@@ -266,7 +266,7 @@ void DisplayController::setFadeDuration(int fadeDuration)
     if (m_fadeDuration != fadeDuration) {
         m_fadeDuration = fadeDuration;
 
-        emit fadeDurationChanged();
+        Q_EMIT fadeDurationChanged();
     }
 }
 
@@ -279,7 +279,7 @@ void DisplayController::setFadeEasing(const QEasingCurve &fadeEasing)
 {
     if (m_fadeAnimation.easingCurve() != fadeEasing) {
         m_fadeAnimation.setEasingCurve(fadeEasing);
-        emit fadeEasingChanged();
+        Q_EMIT fadeEasingChanged();
     }
 }
 
@@ -352,9 +352,9 @@ void DisplayController::writeBrightness(qreal brightness)
     QDataStream stream {&data, QIODevice::WriteOnly};
     stream.setVersion(QDataStream::Qt_5_15); // Ensure against future behavior changes.
     stream.setByteOrder(QDataStream::LittleEndian);
-    
+
     stream << static_cast<quint8>(255 - std::rint(255 * brightness));
-    
+
     m_serialPort.write(data.data(), 1);
 
     // Block max 10ms on writing to the serial port. We want to

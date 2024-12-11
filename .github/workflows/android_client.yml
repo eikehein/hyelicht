@@ -1,34 +1,89 @@
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-# SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+# SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
 
 name: Android (Client)
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
-
-env:
-  BUILD_TYPE: Release
+    branches:
+      - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container:
-      image: kdeorg/android-sdk
+      image: invent-registry.kde.org/sysadmin/ci-images/android-qt68
       options: --user root
 
     steps:
-    - name: Build for Android & archive APK
-      run: |
-        cp /home/user/.gitconfig /etc/gitconfig
-        cd /home/user/src
-        git clone https://github.com/eikehein/hyelicht.git
-        cd hyelicht
-        git reset --hard $GITHUB_SHA
-        sh support/kde_android_docker_build.sh
-    - uses: actions/upload-artifact@v2
-      with:
-        name: hyelicht-arm64-v8a.apk
-        path: /output/hyelicht-arm64-v8a.apk
+      - name: Install dependencies
+        run: | # CraftBootstrap.py's --use-defaults is currently broken. Drop use of `expect` asap.
+          apt-get install -y expect
+
+      - name: Initialize Craft
+        run: |
+          curl https://raw.githubusercontent.com/KDE/craft/master/setup/CraftBootstrap.py > CraftBootstrap.py
+
+          cat <<EOF > automate_CraftBootstrap.exp
+          log_user 1
+          spawn python3 CraftBootstrap.py --prefix $GITHUB_WORKSPACE/CraftRoot
+          expect -ex {[0] Qt5, [1] Qt6 (Default is Qt6): }
+          send "1\r"
+          expect -ex  {[0] arm32, [1] arm64, [2] x86_32, [3] x86_64 (Default is arm64): }
+          send "1\r"
+          expect -ex {[0] Yes, [1] No (Default is Yes): }
+          send "1\r"
+          expect -timeout -1 eof
+          EOF
+
+          expect -f automate_CraftBootstrap.exp
+
+      - name: Install blueprint
+        shell: bash
+        run: |
+            cd  $GITHUB_WORKSPACE/CraftRoot/etc/blueprints/locations/craft-blueprints-kde/kde/applications/
+            mkdir hyelicht
+            cd hyelicht
+            curl https://raw.githubusercontent.com/eikehein/hyelicht/refs/heads/main/support/craft_blueprint/hyelicht.py \
+              > hyelicht.py
+
+      - name: Build
+        shell: bash
+        run: |
+          source $GITHUB_WORKSPACE/CraftRoot/craft/craftenv.sh
+          craft --buildtype MinSizeRel hyelicht
+
+      - name: Package
+        shell: bash
+        run: |
+          source $GITHUB_WORKSPACE/CraftRoot/craft/craftenv.sh
+          craft --package  --buildtype MinSizeRel hyelicht
+
+      - name: Align package archive
+        shell: bash
+        run: |
+          cd $GITHUB_WORKSPACE/CraftRoot/tmp
+          /opt/android-sdk/build-tools/34.0.0/zipalign -p -f -v 4 hyelicht-arm64-v8a.apk hyelicht-arm64-v8a.signed.apk
+
+      - name: Prepare package signing key
+        shell: bash
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_B64 }}" | base64 -d > $GITHUB_WORKSPACE/CraftRoot/tmp/android_signing_key.keystore
+
+      - name: Sign package
+        shell: bash
+        run: |
+          cd $GITHUB_WORKSPACE/CraftRoot/tmp
+          /opt/android-sdk/build-tools/34.0.0/apksigner sign --verbose \
+            --ks android_signing_key.keystore \
+            --ks-pass pass:${{ secrets.ANDROID_KEYSTORE_PASSWORD }} \
+            hyelicht-arm64-v8a.signed.apk
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: hyelicht-arm64-v8a.signed.apk
+          path: CraftRoot/tmp/hyelicht-arm64-v8a.signed.apk

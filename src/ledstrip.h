@@ -23,7 +23,7 @@
  * \ingroup Backend
  *
  * Handles communication with a strip of SK9822/APA102 LEDs using the Linux SPI API.
- * 
+ *
  * Features:
  *
  * - Set the device name (property \ref deviceName) and communication speed (property \ref frequency).
@@ -32,7 +32,7 @@
  * - Get colors and brightness for indivdual LEDs or ranges. For ranges of LEDs, in the form of an average.
  * - Reverse the LED strip data (method \ref reverse).
  * - Toggle optional gamma correction (property \ref gammaCorrection).
- * - Toggle whether LED brightness should be based on the HSV value component of the color data 
+ * - Toggle whether LED brightness should be based on the HSV value component of the color data
  *   (property \ref hsvBrightness).
  * - Write current state to the strip (method \ref show) or clear the strip (method \ref clear).
  * - Save and restore strip state (methods \ref save, \ref restore and others).
@@ -530,7 +530,7 @@ class LedStrip : public QObject, public QQmlParserStatus
         void classBegin() override;
         //! Implements the \c QQmlParserStatus interface.
         void componentComplete() override;
-        
+
     Q_SIGNALS:
         //! SPI-based communication with the LED strip has turned on or off.
         /*!
@@ -614,7 +614,7 @@ class LedStrip : public QObject, public QQmlParserStatus
         bool m_connected;
 
         int m_count;
-        
+
         bool m_gammaCorrection;
         long double m_gamma;
         QByteArray m_lut;

@@ -1,36 +1,21 @@
 <!--
   SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-  SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+  SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
 -->
 <RCC>
     <qresource prefix="/">
-        <!-- UI components -->
-        <file alias="Button.qml">declarative/components/Button.qml</file>
-        <file alias="ColorButton.qml">declarative/components/ColorButton.qml</file>
-        <file alias="ColorWheel.qml">declarative/components/ColorWheel.qml</file>
-        <file alias="NonVisualItem.qml">declarative/components/NonVisualItem.qml</file>
-        <file alias="Onboard.qml">declarative/components/Onboard.qml</file>
-        <file alias="qmldir">declarative/components/qmldir</file>
-        <file alias="Shelf.qml">declarative/components/Shelf.qml</file>
-        <file alias="Theme.qml">declarative/components/Theme.qml</file>
-        
-        <!-- Main application files -->
-        <file alias="BrightnessPopup.qml">declarative/BrightnessPopup.qml</file>
-        <file alias="Curtain.qml">declarative/Curtain.qml</file>
-        <file alias="main.qml">declarative/main.qml</file>
-        <file alias="Gui.qml">declarative/Gui.qml</file>
-        
         <!-- Icons -->
-        <file alias="color-picker.svg">declarative/assets/icons/color-picker.svg</file>
-        <file alias="draw-eraser.svg">declarative/assets/icons/draw-eraser.svg</file>
-        <file alias="fire.svg">declarative/assets/icons/fire.svg</file>
-        <file alias="high-brightness.svg">declarative/assets/icons/high-brightness.svg</file>
-        <file alias="low-brightness.svg">declarative/assets/icons/low-brightness.svg</file>
-        <file alias="network-disconnect.svg">declarative/assets/icons/network-disconnect.svg</file>
-        <file alias="system-shutdown.svg">declarative/assets/icons/system-shutdown.svg</file>
-        
+        <file alias="assets/icons/color-picker.svg">declarative/assets/icons/color-picker.svg</file>
+        <file alias="assets/icons/draw-eraser.svg">declarative/assets/icons/draw-eraser.svg</file>
+        <file alias="assets/icons/fire.svg">declarative/assets/icons/fire.svg</file>
+        <file alias="assets/icons/high-brightness.svg">declarative/assets/icons/high-brightness.svg</file>
+        <file alias="assets/icons/low-brightness.svg">declarative/assets/icons/low-brightness.svg</file>
+        <file alias="assets/icons/network-disconnect.svg">declarative/assets/icons/network-disconnect.svg</file>
+        <file alias="assets/icons/system-shutdown.svg">declarative/assets/icons/system-shutdown.svg</file>
+
         <!-- Other assets -->
-        <file alias="ocean.png">declarative/assets/ocean.png</file>
-        <file alias="shelf.png">declarative/assets/shelf.png</file>
+        <file alias="assets/ocean.png">declarative/assets/ocean.png</file>
+        <file alias="assets/shelf.png">declarative/assets/shelf.png</file>
+
     </qresource>
 </RCC>

@@ -1,14 +1,10 @@
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-# SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+# SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
 
 set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
+set(DOXYGEN_PROJECT_NAME "${PROJECT_NAME}")
 set(DOXYGEN_PROJECT_LOGO ${PROJECT_SOURCE_DIR}/data/icons/sc-apps-hyelicht.svg)
-# Capitalize first letter of project name for a prettier
-# documentation title.
-string(SUBSTRING ${PROJECT_NAME} 0 1 FIRST_LETTER)
-string(TOUPPER ${FIRST_LETTER} FIRST_LETTER)
-string(REGEX REPLACE "^.(.*)" "${FIRST_LETTER}\\1" DOXYGEN_PROJECT_NAME "${PROJECT_NAME}")
 
 set(DOXYGEN_FILE_PATTERNS
     "*.h"
@@ -30,11 +26,10 @@ set(DOXYGEN_EXCLUDE_PATTERNS
     ${PROJECT_SOURCE_DIR}/README.md)
 
 # Hide the internal KConfigXt-generated `SettingsHelper` class.
-# TODO: Enable once the problem with the `Settings` class 
+# TODO: Enable once the problem with the `Settings` class
 # mentioned below is resolved - it will then become necessary,
 # as `SettingsHelper` resides in the same files.
 # set(DOXYGEN_EXCLUDE_SYMBOLS "SettingsHelper")
-
 
 # Prepare the project README.md for Doxygen consumption by generating
 # header id attributes for cross-linking and the table-of-contents.

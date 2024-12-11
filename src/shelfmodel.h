@@ -1,6 +1,6 @@
 /*
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
- * SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+ * SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
  */
 
 #pragma once
@@ -13,8 +13,8 @@
 #include <QUrl>
 #include <QVariantAnimation>
 
-class AbstractAnimation;
-class LedStrip;
+#include "abstractanimation.h"
+#include "ledstrip.h"
 
 //! Data model and business logic specific to the Hyelicht shelf
 /*!
@@ -31,7 +31,7 @@ class LedStrip;
  * ShelfModel with the \ref remotingEnabled property enabled can act as an API
  * server for instances of RemoteShelfModel, which act as client, either out of
  * process or over the network.
- * This allows running the onboard GUI out of process and also enables the 
+ * This allows running the onboard GUI out of process and also enables the
  * PC/Android offboard instances of the application.
  *
  * Communication between RemoteShelfModel and ShelfModel is implemented using
@@ -155,7 +155,7 @@ class ShelfModel : public QAbstractListModel, public QQmlParserStatus
     */
     Q_PROPERTY(bool animateBrightnessTransitions READ animateBrightnessTransitions
         WRITE setAnimateBrightnessTransitions NOTIFY animateBrightnessTransitionsChanged)
-    
+
     //! Average color of the shelf.
     /*!
     * While animating, this is the average color of all LEDs in the \ref ledStrip. Otherwise,
@@ -199,7 +199,7 @@ class ShelfModel : public QAbstractListModel, public QQmlParserStatus
     * \sa transitionDurationChanged
     * \sa animateBrightnessTransitions
     * \sa animateAverageColorTransitions
-    */ 
+    */
     Q_PROPERTY(int transitionDuration READ transitionDuration WRITE setTransitionDuration NOTIFY transitionDurationChanged)
 
     //! Animation to operate on \ref ledStrip.
@@ -213,7 +213,7 @@ class ShelfModel : public QAbstractListModel, public QQmlParserStatus
     * \sa setAnimation
     * \sa animationChanged
     * \sa animating
-    */ 
+    */
     Q_PROPERTY(AbstractAnimation* animation READ animation WRITE setAnimation NOTIFY animationChanged)
 
     //! Toggle the \ref animation.
@@ -225,14 +225,14 @@ class ShelfModel : public QAbstractListModel, public QQmlParserStatus
     * \sa setAnimating
     * \sa animatingChanged
     * \sa animation
-    */ 
+    */
     Q_PROPERTY(bool animating READ animating WRITE setAnimating NOTIFY animatingChanged)
 
     //! Toggle the remoting API server.
     /*!
     * When enabled acts as an API server for instances of RemoteShelfModel, which act as
     * client, either out of process or over the network.
-    * This allows running the onboard GUI out of process and also enables the 
+    * This allows running the onboard GUI out of process and also enables the
     * PC/Android offboard instances of the application.
     *
     * Defaults to \c true.
@@ -240,7 +240,7 @@ class ShelfModel : public QAbstractListModel, public QQmlParserStatus
     * \sa setRemotingEnabled
     * \sa remotingEnabledChanged
     * \sa listenAddress
-    */ 
+    */
     Q_PROPERTY(bool remotingEnabled READ remotingEnabled WRITE setRemotingEnabled NOTIFY remotingEnabledChanged)
 
     //! Listen address for the remoting API server.
@@ -252,7 +252,7 @@ class ShelfModel : public QAbstractListModel, public QQmlParserStatus
     * \sa setListenAddress
     * \sa listenAddressChanged
     * \sa remotingEnabled
-    */ 
+    */
     Q_PROPERTY(QUrl listenAddress READ listenAddress WRITE setListenAddress NOTIFY listenAddressChanged)
 
     public:
@@ -279,7 +279,7 @@ class ShelfModel : public QAbstractListModel, public QQmlParserStatus
         * \sa ledStrip (property)
         * \sa ledStrip
         * \sa ledStripChanged
-        */ 
+        */
         LedStrip *ledStrip() const;
 
         //! Set the LedStrip instance this model operates on.
@@ -604,7 +604,7 @@ class ShelfModel : public QAbstractListModel, public QQmlParserStatus
         /*!
         * When enabled acts as an API server for instances of RemoteShelfModel, which act as
         * client, either out of process or over the network.
-        * This allows running the onboard GUI out of process and also enables the 
+        * This allows running the onboard GUI out of process and also enables the
         * PC/Android offboard instances of the application.
         *
         * @param enabled Server on or off.
@@ -673,75 +673,85 @@ class ShelfModel : public QAbstractListModel, public QQmlParserStatus
 
         //! The shelf has turned on or off.
         /*!
+        * @param enabled Shelf on or off.
         * \sa enabled
         * \sa setEnabled
         */
-        void enabledChanged() const;
+        void enabledChanged(bool enabled) const;
 
         //! The number of boards in the shelf has changed.
         /*!
+        * @param rows Number of boards.
         * \sa rows
         * \sa setRows
         */
-        void rowsChanged() const;
+        void rowsChanged(int rows) const;
 
         //! The number of compartments in each shelf board has changed.
         /*!
+        * @param columns Number of compartments.
         * \sa columns
         * \sa setColumns
         */
-        void columnsChanged() const;
+        void columnsChanged(int columns) const;
 
         //! The number of LEDs in each shelf compartment has changed.
         /*!
+        * @param density Number of LEDs.
         * \sa density
         * \sa setDensity
         */
-        void densityChanged() const;
+        void densityChanged(int density) const;
 
         //! The number of LEDs behind each compartment-dividing wall has changed.
         /*!
+        * @param thickness Wall thickness in LEDs.
         * \sa wallThickness
         * \sa setWallThickness
         */
-        void wallThicknessChanged() const;
+        void wallThicknessChanged(int thickness) const;
 
         //! The brightness of the shelf has changed.
         /*!
+        * @param brightness Shelf brightness level between \c 0.0 and \c 1.0.
         * \sa brightness
         * \sa setBrightness
         */
-        void brightnessChanged() const;
+        void brightnessChanged(qreal brightness) const;
 
         //! Whether to animate transitions between brightness levels has changed.
         /*!
+        @param animate Brightness transitions on or off.
         * \sa animateBrightnessTransitions
         * \sa setAnimateBrightnessTransitions
         */
-        void animateBrightnessTransitionsChanged() const;
+        void animateBrightnessTransitionsChanged(bool animate) const;
 
         //! The average color of the shelf has changed.
         /*!
+        * @param color Color to fill with.
         * \sa averageColor
         * \sa setAverageColor
         */
-        void averageColorChanged() const;
+        void averageColorChanged(const QColor &color) const;
 
         //! Whether to animate transitions between full-shelf color fills has changed.
         /*!
+        * @param animate Full-shelf color fill transitions on or off.
         * \sa animateAverageColorTransitions
         * \sa setAnimateAverageColorTransitions
         */
-        void animateAverageColorTransitionsChanged() const;
+        void animateAverageColorTransitionsChanged(bool animate) const;
 
         //! The duration in milliseconds for an animated fade between brightness levels or full-shelf color fills has changed.
         /*!
+        * @param duration Brightness transitions on or off.
         * \sa transitionDuration
         * \sa setTransitionDuration
         */
-        void transitionDurationChanged() const;
+        void transitionDurationChanged(int duration) const;
 
-        //! The animation to operating on \ref ledStrip has changed.
+        //! The animation operating on \ref ledStrip has changed.
         /*!
         * \sa animation
         * \sa setAnimation
@@ -750,10 +760,11 @@ class ShelfModel : public QAbstractListModel, public QQmlParserStatus
 
         //! Whether to run the \ref animation has changed.
         /*!
+        * @param animating Animation on or off.
         * \sa animating
         * \sa setAnimating
         */
-        void animatingChanged() const;
+        void animatingChanged(bool animating) const;
 
         //! Whether to enable the remoting API server has changed.
         /*!
@@ -780,20 +791,20 @@ class ShelfModel : public QAbstractListModel, public QQmlParserStatus
         void updateRemoting();
 
         QPointer<LedStrip> m_ledStrip;
-        
+
         bool m_enabled;
 
         int m_rows;
         int m_columns;
         int m_density;
         int m_wallThickness;
-        
+
         qreal m_brightness;
         qreal m_targetBrightness;
         bool m_animateBrightnessTransitions;
         bool m_pendingBrightnessTransition;
         QVariantAnimation m_brightnessTransition;
-        
+
         QColor m_averageColor;
         bool m_animateAverageColorTransitions;
         QVariantAnimation m_averageColorTransition;

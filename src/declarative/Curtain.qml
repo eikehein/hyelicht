@@ -1,11 +1,11 @@
 /*
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
- * SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+ * SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
  */
 
-import QtQuick 2.15
-import QtQuick.Window 2.15
-import QtGraphicalEffects 1.15
+import QtQuick
+import QtQuick.Effects
+import QtQuick.Window
 
 //! Animated welcome page UI item for onboard mode
 /*!
@@ -17,7 +17,7 @@ Item {
 
     //! Duration for the opening animation.
     /*!
-    * Defaults to \c 400.
+    * Defaults to \c 440.
     */
     property int animationDuration: 440
 
@@ -38,17 +38,17 @@ Item {
     * Defaults to \c false.
     */
     property alias animateInviteButton: inviteButton.animateInviteButton
-    
+
     Rectangle {
         id: darkOut
-        
+
         anchors.fill: parent
-        
+
         opacity: 0.2
         color: "black"
-        
+
         state: curtain.open ? "open" : "closed"
-        
+
         states: [
             State {
                 name: "closed"
@@ -59,58 +59,59 @@ Item {
                 PropertyChanges { target: darkOut; opacity: 0.0 }
             }
         ]
-        
+
         transitions: Transition {
             to: "open"
-            
-            OpacityAnimator { 
+
+            OpacityAnimator {
                 duration: curtain.animationDuration
                 easing.type: Easing.InCubic
             }
         }
     }
-    
+
     Rectangle {
         id: upperCurtainRenderSource
-    
-        width: parent.width
-        height: parent.height / 2
-        
-        visible: false
-        clip: true
-        color: Theme.brandColor
-        
-        Item {
-            width: Window.width
-            height: Window.height
-            
-            Image {
-                anchors.centerIn: parent
-                
-                height: parent.height
-                
-                fillMode: Image.PreserveAspectFit
-                source: "ocean.png"
-            }
-        }
-    }
-    
-    DropShadow {
-        id: upperCurtain
-        
+
         width: parent.width
         height: parent.height / 2
 
-        horizontalOffset: 0
-        verticalOffset: upperCurtainTransition.running ? 2 : 0
-        radius: upperCurtainTransition.running ? 12.0 : 0.0
-        samples: 16
-        color: "#80000000"
-        cached: true
-        source: upperCurtainRenderSource
-        
+        visible: false
+
+        color: Theme.brandColor
+
+        Image {
+            id: upperImage
+
+            anchors.fill: parent
+
+            anchors.leftMargin: (parent.width - lowerImage.paintedWidth) / 2
+            anchors.rightMargin: (parent.width - lowerImage.paintedWidth) / 2
+
+            fillMode: Image.PreserveAspectCrop
+            source: "qrc:///assets/ocean.png"
+
+            horizontalAlignment: Image.AlignHCenter
+            verticalAlignment: Image.AlignTop
+        }
+    }
+
+    MultiEffect {
+        id: upperCurtain
+
+        width: upperCurtainRenderSource.width
+        height: upperCurtainRenderSource.height
+
+        visible: true
+
+        shadowEnabled: upperCurtainTransition.running
+        shadowHorizontalOffset: 0.0
+        shadowVerticalOffset: 1
+        shadowBlur: 1.0
+        blurMax: 64
+
         state: curtain.open ? "open" : "closed"
-        
+
         states: [
             State {
                 name: "closed"
@@ -121,33 +122,35 @@ Item {
                 PropertyChanges { target: upperCurtain; y: -(parent.height / 2) }
             }
         ]
-        
+
         transitions: Transition {
             id: upperCurtainTransition
-            
+
             to: "open"
-            
-            YAnimator { 
+
+            YAnimator {
                 duration: curtain.animationDuration
                 easing.type: Easing.InCubic
             }
         }
+
+        source: upperCurtainRenderSource
     }
-    
+
     Rectangle {
         id: lowerCurtain
-        
+
         y: parent.height / 2
-    
+
         width: parent.width
         height: parent.height / 2
-        
+
         clip: true
-        
+
         color: Theme.brandColor
-        
+
         state: curtain.open ? "open" : "closed"
-        
+
         states: [
             State {
                 name: "closed"
@@ -158,34 +161,31 @@ Item {
                 PropertyChanges { target: lowerCurtain; y: parent.height }
             }
         ]
-        
+
         transitions: Transition {
             to: "open"
-            
-            YAnimator { 
+
+            YAnimator {
                 duration: curtain.animationDuration
                 easing.type: Easing.InCubic
             }
         }
-        
-        Item {
+
+        Image {
+            id: lowerImage
+
+            anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
-            
+
             width: Window.width
             height: Window.height
-            
-            Image {
-                anchors.centerIn: parent
-                
-                height: parent.height
-                
-                fillMode: Image.PreserveAspectFit
-                source: "ocean.png"
-            }
+
+            fillMode: Image.PreserveAspectFit
+            source: "qrc:///assets/ocean.png"
         }
     }
 
-    RectangularGlow {
+    MultiEffect {
         id: glowEffect
 
         anchors.fill: inviteButton
@@ -194,21 +194,25 @@ Item {
 
         opacity: 0
 
-        color: "white"
-        spread: 1.0
-        glowRadius: 0
-        cornerRadius: inviteButton.radius + glowRadius
+        colorization: 1.0
+        colorizationColor: "white"
+
+        blurEnabled: true
+        blurMax: 64
+        blur: 0.0
+        blurMultiplier: 0.2
 
         ParallelAnimation {
-            running: inviteButton.animateInviteButton
-            loops: Animation.Infinite
+            id: inviteButtonAnimation
+
+            loops: 1
 
             NumberAnimation {
                 target: glowEffect
-                property: "glowRadius"
+                property: "blur"
                 from: 0
-                to: 10
-                duration: 1000
+                to: 1.0
+                duration: 1100
                 easing.type: Easing.OutCubic
             }
 
@@ -216,10 +220,21 @@ Item {
                 target: glowEffect
                 from: 0.8
                 to: 0.0
-                duration: 1000
+                duration: 1100
                 easing.type: Easing.OutCubic
             }
         }
+
+        Timer {
+            running: inviteButton.animateInviteButton
+            interval: 1800
+            repeat: true
+
+            onTriggered: inviteButtonAnimation.start()
+            onRunningChanged: inviteButtonAnimation.stop()
+        }
+
+        source: inviteButton
     }
 
     Rectangle {

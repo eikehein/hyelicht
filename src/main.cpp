@@ -1,6 +1,6 @@
 /*
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
- * SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+ * SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
  */
 
 #include "animations/fireanimation.h"
@@ -30,7 +30,8 @@
 
 #ifdef Q_OS_ANDROID
 #include <QColor>
-#include <QtAndroid>
+#include <QCoreApplication>
+#include <QJniObject>
 
 // From android.view.WindowManager.LayoutParams
 #define FLAG_TRANSLUCENT_STATUS 0x04000000
@@ -46,7 +47,6 @@ Q_DECL_EXPORT
 #endif
 int main(int argc, char *argv[])
 {
-    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app {argc, argv};
 
     KLocalizedString::setApplicationDomain("hyelicht");
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
     QCommandLineOption disableHttpApiOption {
         QStringLiteral("disableHttpApi"),
         xi18nc("@option", "Disable the HTTP REST API server")
-    };  
+    };
 
     QCommandLineOption httpListenAddressOption {
         {QStringLiteral("s"), QStringLiteral("httpListenAddress")},
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
     QCommandLineOption disableRemotingApiOption {
         QStringLiteral("disableRemotingApi"),
         xi18nc("@option", "Disable the remoting API server")
-    };  
+    };
 
     QCommandLineOption remotingListenAddressOption {
         {QStringLiteral("l"), QStringLiteral("remotingListenAddress")},
@@ -139,18 +139,18 @@ int main(int argc, char *argv[])
     aboutData.processCommandLine(&parser);
 
     QScopedPointer<QQmlPropertyMap> options {new QQmlPropertyMap};
-    options->insert("remotingServerAddressOption", parser.value(remotingServerAddressOption));
+    options->insert(QStringLiteral("remotingServerAddress"), parser.value(remotingServerAddressOption));
 #ifdef HYELICHT_BUILD_ONBOARD
-    options->insert("onboard", parser.isSet(onboardOption));
-    options->insert("simulateShelf", parser.isSet(simulateShelfOption));
-    options->insert("simulateDisplay", parser.isSet(simulateDisplayOption));
-    options->insert("remotingApi", parser.isSet(disableRemotingApiOption) ? false : Settings::remotingApi());
-    options->insert("remotingListenAddress", parser.value(remotingListenAddressOption));
-    options->insert("httpApi", parser.isSet(headlessOption) ? false : Settings::remotingApi());
-    options->insert("httpListenAddress", parser.value(httpListenAddressOption));
-    options->insert("httpPort", parser.value(httpPortOption));
+    options->insert(QStringLiteral("onboard"), parser.isSet(onboardOption));
+    options->insert(QStringLiteral("simulateShelf"), parser.isSet(simulateShelfOption));
+    options->insert(QStringLiteral("simulateDisplay"), parser.isSet(simulateDisplayOption));
+    options->insert(QStringLiteral("remotingApi"), parser.isSet(disableRemotingApiOption) ? false : Settings::remotingApi());
+    options->insert(QStringLiteral("remotingListenAddress"), parser.value(remotingListenAddressOption));
+    options->insert(QStringLiteral("httpApi"), parser.isSet(headlessOption) ? false : Settings::remotingApi());
+    options->insert(QStringLiteral("httpListenAddress"), parser.value(httpListenAddressOption));
+    options->insert(QStringLiteral("httpPort"), parser.value(httpPortOption));
 #else
-    options->insert("onboard", false);
+    options->insert(QStringLiteral("onboard"), false);
 #endif
     qmlRegisterSingletonInstance(HYELICHT_DOMAIN_NAME, 1, 0, "Startup", options.get());
 
@@ -161,9 +161,10 @@ int main(int argc, char *argv[])
     qmlRegisterType<LedStrip>(HYELICHT_DOMAIN_NAME, 1, 0, "LedStrip");
     qmlRegisterType<RemoteShelfModel>(HYELICHT_DOMAIN_NAME, 1, 0, "RemoteShelfModel");
     qmlRegisterType<ShelfModel>(HYELICHT_DOMAIN_NAME, 1, 0, "ShelfModel");
-    
-    const char *animationsDomain = QStringLiteral("%1.animations").arg(HYELICHT_DOMAIN_NAME).toUtf8().constData();
-    qmlRegisterUncreatableType<AbstractAnimation>(animationsDomain, 1, 0, "AbstractAnimation", "");
+
+    const char *animationsDomain = QStringLiteral("%1.animations")
+        .arg(QStringLiteral(HYELICHT_DOMAIN_NAME)).toUtf8().constData();
+    qmlRegisterUncreatableType<AbstractAnimation>(animationsDomain, 1, 0, "AbstractAnimation", QStringLiteral(""));
     qmlRegisterType<FireAnimation>("com.hyerimandeike.hyelicht.animations", 1, 0, "FireAnimation");
 
     QQmlApplicationEngine engine {&app};
@@ -171,8 +172,8 @@ int main(int argc, char *argv[])
     // For i18n.
     engine.rootContext()->setContextObject(new KLocalizedContext {&engine});
 
-    engine.load(QUrl {QStringLiteral("qrc:///main.qml")});
-    
+    engine.load(QUrl {QStringLiteral("qrc:///qt/qml/com/hyerimandeike/hyelicht/declarative/main.qml")});
+
     if (engine.rootObjects().isEmpty()) {
         qCCritical(HYELICHT) << i18n("Application failed to load.");
         return 1;
@@ -181,14 +182,15 @@ int main(int argc, char *argv[])
 #ifdef Q_OS_ANDROID
     // Android currently requires this hack to set the status and navigation
     // bar colors.
-    QtAndroid::runOnAndroidThread([=]() {
-        QAndroidJniObject window = QtAndroid::androidActivity().callObjectMethod("getWindow",
-            "()Landroid/view/Window;");
+
+    QNativeInterface::QAndroidApplication::runOnAndroidMainThread([=]() {
+        QJniObject window {QNativeInterface::QAndroidApplication::context()};
+        window = window.callObjectMethod("getWindow", "()Landroid/view/Window;");
         window.callMethod<void>("addFlags", "(I)V", FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.callMethod<void>("clearFlags", "(I)V", FLAG_TRANSLUCENT_STATUS);
         window.callMethod<void>("setStatusBarColor", "(I)V", QColor("#FFFFFF").rgba());
         window.callMethod<void>("setNavigationBarColor", "(I)V", QColor("#FFFFFF").rgba());
-        QAndroidJniObject insetsController = window.callObjectMethod("getInsetsController",
+        QJniObject insetsController = window.callObjectMethod("getInsetsController",
             "()Landroid/view/WindowInsetsController;");
         insetsController.callMethod<void>("setSystemBarsAppearance", "(II)V",
             APPEARANCE_LIGHT_STATUS_BARS | APPEARANCE_LIGHT_NAVIGATION_BARS,

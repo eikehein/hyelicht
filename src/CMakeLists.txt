@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-# SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+# SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
 
 add_compile_definitions(HYELICHT_VERSION="${PROJECT_VERSION}")
 add_compile_definitions(HYELICHT_DOMAIN_NAME="${HYELICHT_DOMAIN_NAME}")
@@ -48,7 +48,6 @@ ecm_qt_declare_logging_category(hyelicht_SRCS
     EXPORT hyelicht
 )
 
-
 ecm_qt_declare_logging_category(hyelicht_SRCS
     HEADER debug_httpserver.h
     IDENTIFIER HYELICHT_HTTPSERVER
@@ -76,43 +75,78 @@ ecm_qt_declare_logging_category(hyelicht_SRCS
     EXPORT hyelicht
 )
 
-
 file(GLOB ICONS_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/../data/icons/*apps-hyelicht.svg")
 ecm_add_app_icon(hyelicht_SRCS ICONS ${ICONS_SRCS})
 
-if(COMPILE_QML)
-    qtquick_compiler_add_resources(RESOURCES resources.qrc)
-else()
-    qt5_add_resources(RESOURCES resources.qrc)
-endif()
+qt_add_resources(RESOURCES resources.qrc)
 
 add_executable(hyelicht ${hyelicht_SRCS} ${RESOURCES})
+
+set(qml_singletons
+    declarative/components/Onboard.qml
+    declarative/components/Theme.qml
+)
+
+set_source_files_properties(${qml_singletons}
+    PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
+
+qt_add_qml_module(hyelicht
+    URI
+        com.hyerimandeike.hyelicht
+    QML_FILES
+        declarative/main.qml
+        declarative/BrightnessPopup.qml
+        declarative/Curtain.qml
+        declarative/Gui.qml
+        declarative/components/BasicButton.qml
+        declarative/components/ColorButton.qml
+        declarative/components/ColorWheel.qml
+        declarative/components/NonVisualItem.qml
+        declarative/components/Shelf.qml
+        ${qml_singletons}
+)
+
+qt_add_shaders(hyelicht "hyelicht_shaders"
+    BATCHABLE
+    PRECOMPILE
+    OPTIMIZED
+    PREFIX
+        "shaders/"
+    BASE
+        "declarative/components/shaders/"
+    FILES
+        "declarative/components/shaders/ColorWheel.frag"
+        "declarative/components/shaders/ColorWheel.vert"
+)
+
+qt_add_repc_merged(hyelicht
+    remoteshelfmodeliface.rep
+)
 
 target_compile_definitions(hyelicht PRIVATE -DUSE_QRC)
 
 target_link_libraries(hyelicht
-    Qt5::Core
-    Qt5::Qml
-    Qt5::Quick
-    Qt5::RemoteObjects
-    KF5::ConfigCore
-    KF5::ConfigGui
-    KF5::CoreAddons
-    KF5::I18n
+    PRIVATE
+        Qt6::Core
+        Qt6::Qml
+        Qt6::Quick
+        Qt6::RemoteObjects
+        KF6::ConfigCore
+        KF6::ConfigGui
+        KF6::CoreAddons
+        KF6::I18n
 )
 
 if(BUILD_ONBOARD)
     target_link_libraries(hyelicht
-        Qt5::SerialPort
-        qhttpengine
+        PRIVATE
+            Qt6::HttpServer
+            Qt6::SerialPort
     )
 endif()
 
 if(ANDROID)
-    target_link_libraries(hyelicht
-        Qt5::AndroidExtras
-        Qt5::Svg # For icon rendering.
-    )
+    ecm_add_android_apk(hyelicht ANDROID_DIR ${CMAKE_SOURCE_DIR}/data/android)
 endif()
 
 install(TARGETS hyelicht ${KF5_INSTALL_TARGETS_DEFAULT_ARGS})
@@ -136,11 +170,11 @@ if(BUILD_CLI)
     add_executable(hyelichtctl ${hyelichtctl_SRCS})
 
     target_link_libraries(hyelichtctl
-        Qt5::Core
-        Qt5::Gui
-        Qt5::Network
-        KF5::CoreAddons
-        KF5::I18n
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Network
+        KF6::CoreAddons
+        KF6::I18n
     )
 
     install(TARGETS hyelichtctl ${KF5_INSTALL_TARGETS_DEFAULT_ARGS})

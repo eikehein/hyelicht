@@ -1,10 +1,9 @@
 /*
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
- * SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+ * SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
  */
 
-import QtQuick 2.15
-
+import QtQuick
 //! Visualization UI item specific to the Hyelicht shelf
 /*!
  * \ingroup GUI
@@ -35,7 +34,7 @@ Item {
 
         readonly property real scaleFactor: paintedWidth / implicitWidth
 
-        source: "shelf.png"
+        source: "qrc:///assets/shelf.png"
         fillMode: Image.PreserveAspectFit
     }
 

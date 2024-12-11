@@ -1,13 +1,14 @@
 /*
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
- * SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+ * SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
  */
 
-import QtQuick 2.15
-import QtQuick.Controls 2.15
-import QtQuick.Window 2.15
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Window
+import QtNetwork
 
-import com.hyerimandeike.hyelicht 1.0
+import com.hyerimandeike.hyelicht
 
 //! Main window UI item
 /*!
@@ -16,13 +17,13 @@ import com.hyerimandeike.hyelicht 1.0
  */
 Window {
     id: gui
-    
+
     width: 1024
     height: 600
 
     //! ShelfModel (or RemoteShelfModel) instance this GUI operates on.
     property QtObject model: null
-    
+
     //! Whether the window is wider than it is tall.
     readonly property bool landscape: width > height
 
@@ -73,9 +74,9 @@ Window {
 
     Rectangle {
         id: mainWindowBackground
-        
+
         anchors.fill: parent
-        
+
         color: Theme.windowBackgroundColor
     }
 
@@ -112,10 +113,8 @@ Window {
         anchors.top: parent.top
         anchors.right: parent.right
 
-        // TODO: Once on Qt 6, use `QNetworkInformation` to also visualize
-        // device online state (e.g. wifi disconnected) to make the reason
-        // behind a disconnect discoverable.
-        active: !Startup.onboard && !gui.model.connected
+        active: !Startup.onboard && (!gui.model.connected
+            || NetworkInformation.reachability === NetworkInformation.Reachability.Disconnected)
         sourceComponent: connectionStatusComponent
     }
 
@@ -131,7 +130,7 @@ Window {
             sourceSize.width: width
             sourceSize.height: height
 
-            source: "network-disconnect.svg"
+            source: "qrc:///assets/icons/network-disconnect.svg"
         }
     }
 
@@ -156,11 +155,11 @@ Window {
             rows: model ? model.rows : 0
             columns: model ? model.columns : 0
 
-            onTapped: {
+            onTapped: function (square) {
                 if (displayController) {
                     displayController.resetIdleTimeout();
                 }
-                
+
                 if (!square) {
                     return;
                 }
@@ -185,7 +184,7 @@ Window {
 
                     PropertyChanges {
                         target: shelf
-                        width: Math.min(gui.width - controlsGrid.width 
+                        width: Math.min(gui.width - controlsGrid.width
                             - (3 * parent.spacing), Math.floor(controlsGrid.height * 1.046))
                         height: width
                     }
@@ -197,7 +196,7 @@ Window {
                     PropertyChanges {
                         target: shelf
                         width: height
-                        height: Math.min(gui.height - controlsGrid.height 
+                        height: Math.min(gui.height - controlsGrid.height
                             - (3 * parent.spacing), Math.floor(controlsGrid.width * 1.046))
                     }
                 }
@@ -230,7 +229,7 @@ Window {
                     if (displayController) {
                         displayController.resetIdleTimeout();
                     }
-                    
+
                     colorButton.checked = true;
                 }
             }
@@ -277,7 +276,7 @@ Window {
                                 colorButtonClickBlockTimer.restart();
                             }
                         }
-                        
+
                         onClicked: {
                             if (displayController) {
                                 displayController.resetIdleTimeout();
@@ -300,13 +299,13 @@ Window {
                         }
                     }
 
-                    Button {
+                    BasicButton {
                         id: colorPickerButton
 
                         width: colorButton.width
                         height: width
 
-                        source: "color-picker.svg"
+                        source: "qrc:///assets/icons/color-picker.svg"
 
                         checkable: true
 
@@ -319,13 +318,13 @@ Window {
                         }
                     }
 
-                    Button {
+                    BasicButton {
                         id: eraserButton
 
                         width: colorButton.width
                         height: width
 
-                        source: "draw-eraser.svg"
+                        source: "qrc:///assets/icons/draw-eraser.svg"
 
                         checkable: true
 
@@ -338,13 +337,13 @@ Window {
                         }
                     }
 
-                    Button {
+                    BasicButton {
                         id: brightnessButton
 
                         width: colorButton.width
                         height: width
 
-                        source: "high-brightness.svg"
+                        source: "qrc:///assets/icons/high-brightness.svg"
 
                         checkable: true
 
@@ -378,13 +377,13 @@ Window {
 
                     spacing: Theme.proportion(gui, 0.029)
 
-                    Button {
+                    BasicButton {
                         id: fireplaceModeButton
 
                         width: colorButton.width
                         height: width
 
-                        source: "fire.svg"
+                        source: "qrc:///assets/icons/fire.svg"
 
                         checkable: true
                         invertIconWhenChecked: false
@@ -399,20 +398,20 @@ Window {
 
                         Connections {
                             target: model
-                            
+
                             function onAnimatingChanged() {
                                 fireplaceModeButton.checked = model.animating;
                             }
                         }
                     }
 
-                    Button {
+                    BasicButton {
                         id: onOffButton
 
                         width: colorButton.width
                         height: width
 
-                        source: "system-shutdown.svg"
+                        source: "qrc:///assets/icons/system-shutdown.svg"
 
                         checkable: true
 
@@ -426,14 +425,14 @@ Window {
                         }
 
                         Component.onCompleted: {
-                            
+
                         }
 
-                        // Why so convoluted? 
+                        // Why so convoluted?
                         // -> https://bugreports.qt.io/browse/QTBUG-84746
                         Connections {
                             target: gui
-                            
+
                             function onModelChanged() {
                                 if (gui.model) {
                                     gui.model.enabledChanged.connect(function() {
@@ -454,12 +453,12 @@ Window {
                         State {
                             name: "landscape"
                             when: gui.landscape
-                            PropertyChanges { target: stateButtonsGrid; rows: 1; columns: 2 }
+                            PropertyChanges { target: stateButtonsGrid; rows: 0; columns: 2 }
                         },
                         State {
                             name: "portrait"
                             when: !gui.landscape
-                            PropertyChanges { target: stateButtonsGrid; rows: 2; columns: 1 }
+                            PropertyChanges { target: stateButtonsGrid; rows: 2; columns: 0 }
                         }
                     ]
                 }
@@ -468,12 +467,12 @@ Window {
                     State {
                         name: "landscape"
                         when: gui.landscape
-                        PropertyChanges { target: controlButtonsGrid; rows: 2; columns: 1 }
+                        PropertyChanges { target: controlButtonsGrid; rows: 2; columns: 0 }
                     },
                     State {
                         name: "portrait"
                         when: !gui.landscape
-                        PropertyChanges { target: controlButtonsGrid; rows: 1; columns: 2 }
+                        PropertyChanges { target: controlButtonsGrid; rows: 0; columns: 2 }
                     }
                 ]
             }
@@ -483,12 +482,12 @@ Window {
                     name: "landscape"
                     when: gui.landscape
 
-                    PropertyChanges { target: controlsGrid; rows: 2; columns: 1 }
+                    PropertyChanges { target: controlsGrid; rows: 2; columns: 0 }
                 },
                 State {
                     name: "portrait"
                     when: !gui.landscape
-                    PropertyChanges { target: controlsGrid; rows: 1; columns: 2 }
+                    PropertyChanges { target: controlsGrid; rows: 0; columns: 2 }
                 }
             ]
         }
@@ -497,19 +496,19 @@ Window {
             State {
                 name: "landscape"
                 when: gui.landscape
-                PropertyChanges { target: mainGrid; rows: 1; columns: 2 }
+                PropertyChanges { target: mainGrid; rows: 0; columns: 2 }
             },
             State {
                 name: "portrait"
                 when: !gui.landscape
-                PropertyChanges { target: mainGrid; rows: 2; columns: 1 }
+                PropertyChanges { target: mainGrid; rows: 2; columns: 0 }
             }
         ]
     }
 
     BrightnessPopup {
         id: brightnessPopup
-        
+
         width: parent.width
         height: colorButton.width + (Theme.proportion(gui, 0.029) * 2) + Onboard.topMargin
 

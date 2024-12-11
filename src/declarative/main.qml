@@ -1,10 +1,10 @@
 /*
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
- * SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+ * SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
  */
 
-import QtQuick 2.15
-import QtQml 2.15
+import QtQuick
+import QtQml
 
 import com.hyerimandeike.hyelicht 1.0
 import com.hyerimandeike.hyelicht.animations 1.0
@@ -60,7 +60,7 @@ NonVisualItem {
         id: remoteClientModelComponent
 
         RemoteShelfModel {
-            serverAddress: Settings.remotingServerAddress
+            serverAddress: Startup.remotingServerAddress
         }
     }
 
@@ -74,7 +74,7 @@ NonVisualItem {
 
             listenAddress: Startup.httpListenAddress
             port: Startup.httpPort
-            
+
             model: modelInstantiator.object
         }
     }

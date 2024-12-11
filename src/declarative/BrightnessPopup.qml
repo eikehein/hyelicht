@@ -1,12 +1,12 @@
 /*
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
- * SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+ * SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
  */
 
-import QtQuick 2.15
-import QtQuick.Controls 2.15
-import QtQuick.Layouts 1.15
-import QtGraphicalEffects 1.15
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Effects
+import QtQuick.Layouts
 
 //! Popup UI item with embedded slider to adjust LED brightness
 /*!
@@ -50,8 +50,28 @@ Popup {
         }
     }
 
-    background: Rectangle {
-        color: Theme.windowBackgroundColor
+    background: Item {
+        Rectangle {
+            id: bgRect
+
+            anchors.fill: parent
+
+            color: Theme.windowBackgroundColor
+        }
+
+        MultiEffect {
+            anchors.fill: parent
+
+            opacity: 0.6
+
+            shadowEnabled: true
+            shadowHorizontalOffset: 0.0
+            shadowVerticalOffset: 1
+            shadowBlur: 0.5
+            blurMax: 64
+
+            source: bgRect
+        }
     }
 
     contentItem: RowLayout {
@@ -68,7 +88,7 @@ Popup {
             sourceSize.width: width
             sourceSize.height: height
 
-            source: "low-brightness.svg"
+            source: "qrc:///assets/icons/low-brightness.svg"
         }
 
         Slider {
@@ -83,7 +103,7 @@ Popup {
             onMoved: {
                 popup.changedInteractive();
                 autoCloseTimer.interval = 2000;
-                autoCloseTimer.restart();       
+                autoCloseTimer.restart();
             }
 
             background: Rectangle {
@@ -92,10 +112,10 @@ Popup {
 
                 implicitWidth: 200
                 implicitHeight: 4
-                
+
                 width: parent.availableWidth
                 height: implicitHeight
-                
+
                 radius: 2
 
                 color: Theme.inactiveButtonColor
@@ -103,7 +123,7 @@ Popup {
                 Rectangle {
                     width: brightnessSlider.visualPosition * parent.width
                     height: parent.height
-                    
+
                     radius: 2
 
                     color: Qt.lighter(Theme.activeButtonColor, 1.4)
@@ -134,7 +154,7 @@ Popup {
             sourceSize.width: width
             sourceSize.height: height
 
-            source: "high-brightness.svg"
+            source: "qrc:///assets/icons/high-brightness.svg"
         }
     }
 

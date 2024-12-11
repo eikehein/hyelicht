@@ -1,6 +1,6 @@
 /*
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
- * SPDX-FileCopyrightText: 2021-2022 Eike Hein <sho@eikehein.com>
+ * SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
  */
 
 #include "ledstrip.h"
@@ -27,7 +27,7 @@ LedStrip::LedStrip(QObject *parent)
 LedStrip::LedStrip(int count, QObject *parent)
     : QObject {parent}
     , m_enabled {false}
-    , m_deviceName {"/dev/spidev0.0"}
+    , m_deviceName {QStringLiteral("/dev/spidev0.0")}
     , m_frequency {8000000}
     , m_fd {-1}
     , m_connected {false}
@@ -85,7 +85,7 @@ void LedStrip::setEnabled(bool enabled)
             connect();
         }
 
-        emit enabledChanged();
+        Q_EMIT enabledChanged();
     }
 }
 
@@ -103,7 +103,7 @@ void LedStrip::setDeviceName(const QString &deviceName)
             connect();
         }
 
-        emit deviceNameChanged();
+        Q_EMIT deviceNameChanged();
     }
 }
 
@@ -121,7 +121,7 @@ void LedStrip::setFrequency(int frequency)
             connect();
         }
 
-        emit frequencyChanged();
+        Q_EMIT frequencyChanged();
     }
 }
 
@@ -156,7 +156,7 @@ void LedStrip::setCount(int count)
             m_count = count;
         }
 
-        emit countChanged();
+        Q_EMIT countChanged();
     }
 }
 
@@ -178,7 +178,7 @@ void LedStrip::setGammaCorrection(bool gammaCorrection)
             }
         }
 
-        emit gammaCorrectionChanged();
+        Q_EMIT gammaCorrectionChanged();
     }
 }
 
@@ -200,7 +200,7 @@ void LedStrip::setGamma(qreal gamma)
             }
         }
 
-        emit gammaChanged();
+        Q_EMIT gammaChanged();
     }
 }
 
@@ -222,7 +222,7 @@ void LedStrip::setHsvBrightness(bool hsvBrightness)
             }
         }
 
-        emit hsvBrightnessChanged();
+        Q_EMIT hsvBrightnessChanged();
     }
 }
 
@@ -553,7 +553,7 @@ bool LedStrip::show()
 
             uint8_t *ptr {reinterpret_cast<uint8_t *>(&m_data[i])};
             uint8_t *ptr_corrected {reinterpret_cast<uint8_t *>(&m_brightnessCorrectedData[i])};
-            ptr_corrected[0] = (static_cast<int>(LED_MAX_BRIGHTNESS 
+            ptr_corrected[0] = (static_cast<int>(LED_MAX_BRIGHTNESS
                 * QColor(ptr[1], ptr[2], ptr[3]).valueF()) | LED_BRIGHTNESS_HIGH_BITS);
             ptr_corrected[1] = ptr[1]; // Color data is not affected.
             ptr_corrected[2] = ptr[2];
@@ -583,7 +583,8 @@ bool LedStrip::show()
     const int ret {ioctl(m_fd, SPI_IOC_MESSAGE(3), m_message)};
 
     if (ret < 1) {
-        qCCritical(HYELICHT_LEDSTRIP) << i18n("Error sending SPI message: %1", strerror(errno));
+        qCCritical(HYELICHT_LEDSTRIP) << i18n("Error sending SPI message: %1",
+            QString::fromUtf8(strerror(errno)));
         return false;
     }
 
@@ -605,7 +606,7 @@ void LedStrip::save()
 
     memcpy(m_savedData, m_data, m_savedSize);
 
-    emit canRestoreChanged();
+    Q_EMIT canRestoreChanged();
 }
 
 void LedStrip::forgetSavedData()
@@ -649,7 +650,7 @@ bool LedStrip::restore(RestoreOptions options)
     }
 
     forgetSavedData();
-    emit canRestoreChanged();
+    Q_EMIT canRestoreChanged();
 
     return true;
 }
@@ -682,7 +683,8 @@ void LedStrip::connect()
     int fd = open(m_deviceName.toUtf8().data(), O_RDWR);
 
     if (fd < 0) {
-        qCCritical(HYELICHT_LEDSTRIP) << i18n("Unable to open device: %1", strerror(errno));
+        qCCritical(HYELICHT_LEDSTRIP) << i18n("Unable to open device: %1",
+            QString::fromUtf8(strerror(errno)));
         return;
     }
 
@@ -690,7 +692,8 @@ void LedStrip::connect()
     ret = ioctl(fd, SPI_IOC_WR_MODE, &mode);
 
     if (ret == -1) {
-        qCCritical(HYELICHT_LEDSTRIP) << i18n("Unable to set SPI mode: %1", strerror(errno));
+        qCCritical(HYELICHT_LEDSTRIP) << i18n("Unable to set SPI mode: %1",
+            QString::fromUtf8(strerror(errno)));
         return;
     }
 
@@ -698,14 +701,16 @@ void LedStrip::connect()
     ret = ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits);
 
     if (ret == -1) {
-         qCCritical(HYELICHT_LEDSTRIP) << i18n("Unable to set bits per word: %1", strerror(errno));
+         qCCritical(HYELICHT_LEDSTRIP) << i18n("Unable to set bits per word: %1",
+            QString::fromUtf8(strerror(errno)));
          return;
     }
 
     ret = ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &m_frequency);
 
     if (ret == -1) {
-        qCCritical(HYELICHT_LEDSTRIP) << i18n("Unable to set max speed HZ: %1", strerror(errno));
+        qCCritical(HYELICHT_LEDSTRIP) << i18n("Unable to set max speed HZ: %1",
+            QString::fromUtf8(strerror(errno)));
         return;
     }
 
@@ -751,7 +756,7 @@ void LedStrip::connect()
     m_message[2].bits_per_word = bits;
 
     m_connected = true;
-    emit connectedChanged();
+    Q_EMIT connectedChanged();
 }
 
 void LedStrip::disconnect()
@@ -773,7 +778,7 @@ void LedStrip::disconnect()
 
     if (m_connected) {
         m_connected = false;
-        emit connectedChanged();
+        Q_EMIT connectedChanged();
     }
 }
 
