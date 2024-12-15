@@ -30,11 +30,6 @@ RemoteShelfModel::~RemoteShelfModel()
 {
 }
 
-bool RemoteShelfModel::connected() const
-{
-    return m_remoteModelIface && (m_remoteModelIface->state() == QRemoteObjectReplica::Valid);
-}
-
 QUrl RemoteShelfModel::serverAddress() const
 {
     return m_serverAddress;
@@ -51,6 +46,13 @@ void RemoteShelfModel::setServerAddress(const QUrl &url)
 
         Q_EMIT serverAddressChanged();
     }
+}
+
+bool RemoteShelfModel::ready() const
+{
+    return m_remoteModelIface
+        && m_remoteModel->isInitialized()
+        && (m_remoteModelIface->state() == QRemoteObjectReplica::Valid);
 }
 
 bool RemoteShelfModel::enabled() const
@@ -277,7 +279,7 @@ void RemoteShelfModel::updateSource()
         delete m_remotingServer;
         m_remotingServer = nullptr;
 
-        Q_EMIT connectedChanged();
+        Q_EMIT readyChanged();
 
         Q_EMIT enabledChanged();
 
@@ -324,6 +326,9 @@ void RemoteShelfModel::updateSource()
             return;
         }
 
+        QObject::connect(m_remoteModel, &QAbstractItemModelReplica::initialized,
+            this, &RemoteShelfModel::readyChanged);
+
         setSourceModel(m_remoteModel);
 
         m_remoteModelIface =  m_remotingServer->acquire<RemoteShelfModelIfaceReplica>();
@@ -334,10 +339,10 @@ void RemoteShelfModel::updateSource()
             return;
         }
 
-        Q_EMIT connectedChanged();
+        Q_EMIT readyChanged();
 
         QObject::connect(m_remoteModelIface, &QRemoteObjectReplica::stateChanged,
-            this, &RemoteShelfModel::connectedChanged);
+            this, &RemoteShelfModel::readyChanged);
 
         qCInfo(HYELICHT_REMOTING) << i18n("Connected to remoting API server at: %1",
             m_serverAddress.toString());

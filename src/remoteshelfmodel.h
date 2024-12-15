@@ -39,13 +39,6 @@ class RemoteShelfModel : public QIdentityProxyModel, public QQmlParserStatus
     Q_OBJECT
     Q_INTERFACES(QQmlParserStatus)
 
-    //! Whether there is a healthy connection to a ShelfModel.
-    /*!
-    *
-    * \sa serverAddress
-    */
-    Q_PROPERTY(bool connected READ connected NOTIFY connectedChanged)
-
     //! Address used to connect to a ShelfModel instance.
     /*!
     * Can be e.g. \c tcp:// or \c local:.
@@ -56,6 +49,13 @@ class RemoteShelfModel : public QIdentityProxyModel, public QQmlParserStatus
     * \sa serverAddressChanged
     */
     Q_PROPERTY(QUrl serverAddress READ serverAddress WRITE setServerAddress NOTIFY serverAddressChanged)
+
+    //! Whether the connection is healthy and remote data is available.
+    /*!
+    *
+    * \sa serverAddress
+    */
+    Q_PROPERTY(bool ready READ ready NOTIFY readyChanged)
 
     //! \sa ShelfModel::enabled
     Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
@@ -95,13 +95,6 @@ class RemoteShelfModel : public QIdentityProxyModel, public QQmlParserStatus
         explicit RemoteShelfModel(QObject *parent = nullptr);
         ~RemoteShelfModel() override;
 
-        //! Whether there is a healthy connection to a ShelfModel.
-        /*!
-        * @return Connected or not.
-        * \sa serverAddress
-        */
-        bool connected() const;
-
         //! The address used to connect to a ShelfModel instance.
         /*!
         * @return Server address, e.g. \c tcp:// or \c local:.
@@ -118,6 +111,13 @@ class RemoteShelfModel : public QIdentityProxyModel, public QQmlParserStatus
         * \sa serverAddressChanged
         */
         void setServerAddress(const QUrl &url);
+
+        //! Whether the connection is healthy and remote data is available.
+        /*!
+        * @return Ready or not.
+        * \sa serverAddress
+        */
+        bool ready() const;
 
         //! \sa ShelfModel::enabled
         bool enabled() const;
@@ -179,11 +179,11 @@ class RemoteShelfModel : public QIdentityProxyModel, public QQmlParserStatus
         void componentComplete() override;
 
     Q_SIGNALS:
-        //! Whether there is a healthy connection to a ShelfModel has changed.
+        //! Whether the connection is healthy and remote data is available.
         /*!
-        * \sa connected
+        * \sa ready
         */
-        void connectedChanged() const;
+        void readyChanged() const;
 
         //! The address used to connect to a ShelfModel instance has changed.
         /*!

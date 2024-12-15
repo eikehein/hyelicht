@@ -113,7 +113,7 @@ Window {
         anchors.top: parent.top
         anchors.right: parent.right
 
-        active: !Startup.onboard && (!gui.model.connected
+        active: !Startup.onboard && (!gui.model.ready
             || NetworkInformation.reachability === NetworkInformation.Reachability.Disconnected)
         sourceComponent: connectionStatusComponent
     }
@@ -149,11 +149,26 @@ Window {
 
             enabled: (curtain && curtain.open) || !curtain
 
-            // Unset to avoid unnecessary busy work while the display is off.
-            model: (curtain && curtain.open || !curtain) ? gui.model : null
+            model: {
+                // Unset to avoid unnecessary busy work while the display is off.
+                if (curtain && curtain.open || !curtain) {
+                    // If we're acting as a client to a remote instance but aren't
+                    // ready to render actual data yet, render the shelf visualization
+                    // as if the shelf is disabled. This is visually more pleasing at
+                    // startup instead of briefly flashing the white background before
+                    // the true state streams in.
+                    if (!Startup.onboard && !gui.model.ready) {
+                        return Settings.rows * Settings.columns;
+                    }
 
-            rows: model ? model.rows : 0
-            columns: model ? model.columns : 0
+                    return gui.model;
+                }
+
+                return null;
+            }
+
+            rows: Qt.isQtObject(model) ? model.rows : Settings.rows
+            columns: Qt.isQtObject(model) ? model.columns : Settings.columns
 
             onTapped: function (square) {
                 if (displayController) {
