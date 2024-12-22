@@ -6,8 +6,8 @@
 import QtQuick
 import QtQml
 
-import com.hyerimandeike.hyelicht 1.0
-import com.hyerimandeike.hyelicht.animations 1.0
+import com.hyerimandeike.hyelicht
+import com.hyerimandeike.hyelicht.animations
 
 NonVisualItem {
     id: main
