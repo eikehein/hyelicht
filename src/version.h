@@ -1,6 +1,6 @@
 /*
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
- * SPDX-FileCopyrightText: 2021-2024 Eike Hein <sho@eikehein.com>
+ * SPDX-FileCopyrightText: 2021-2025 Eike Hein <sho@eikehein.com>
  */
 
 #pragma once
@@ -16,7 +16,7 @@ namespace Hyelicht {
             QStringLiteral(HYELICHT_VERSION),
             description,
             KAboutLicense::Unknown,
-            i18nc("@info:credit", "(c) 2021-2024 Hyerim and Eike"),
+            i18nc("@info:credit", "(c) 2021-2025 Hyerim and Eike"),
             QStringLiteral(),
             QStringLiteral("https://www.hyerimandeike.com/"),
             QStringLiteral("sho@eikehein.com")};
