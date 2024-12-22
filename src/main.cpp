@@ -26,7 +26,6 @@
 #include <QQmlEngine>
 #include <QQmlExtensionPlugin>
 #include <QQmlPropertyMap>
-#include <QRemoteObjectHost>
 
 #ifdef Q_OS_ANDROID
 #include <QColor>

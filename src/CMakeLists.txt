@@ -149,7 +149,7 @@ if(ANDROID)
     ecm_add_android_apk(hyelicht ANDROID_DIR ${CMAKE_SOURCE_DIR}/data/android)
 endif()
 
-install(TARGETS hyelicht ${KF5_INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS hyelicht ${KF6_INSTALL_TARGETS_DEFAULT_ARGS})
 
 
 # Optional `hyelichtctl` CLI frontend.

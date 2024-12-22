@@ -16,6 +16,5 @@
         <!-- Other assets -->
         <file alias="assets/ocean.png">declarative/assets/ocean.png</file>
         <file alias="assets/shelf.png">declarative/assets/shelf.png</file>
-
     </qresource>
 </RCC>
