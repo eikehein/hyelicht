@@ -21,6 +21,7 @@ jobs:
     steps:
       - name: Install dependencies
         run: | # CraftBootstrap.py's --use-defaults is currently broken. Drop use of `expect` asap.
+          apt-get update
           apt-get install -y expect
 
       - name: Initialize Craft
