@@ -15,7 +15,7 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     container:
-      image: invent-registry.kde.org/sysadmin/ci-images/android-qt68
+      image: invent-registry.kde.org/sysadmin/ci-images/android-qt69
       options: --user root
 
     steps:
